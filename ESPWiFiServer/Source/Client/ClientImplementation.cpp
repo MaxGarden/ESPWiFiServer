@@ -22,7 +22,7 @@ bool CClientImplementation::Send(const Packet& packet)
 
     auto sentDataSize = 0u;
 
-    sentDataSize += m_Socket->write(reinterpret_cast<const char*>(&packetSize), sizeof(Packet));
+    sentDataSize += m_Socket->write(reinterpret_cast<const char*>(&packetSize), sizeof(PacketSizeType));
     sentDataSize += m_Socket->write(reinterpret_cast<const char*>(&packet.Type), sizeof(byte));
     sentDataSize += m_Socket->write(reinterpret_cast<const char*>(packet.Payload.data()), packet.Payload.size() * sizeof(byte));
 
@@ -36,19 +36,29 @@ void CClientImplementation::SetSocket(QTcpSocket* clientSocket)
     if (m_Socket)
         CleanUp(*m_Socket);
 
+    if (IsConnected())
+        OnDisconnected();
+
     m_Socket = clientSocket;
 
     if (m_Socket)
         Setup(*m_Socket);
+
+    if (IsConnected())
+        OnConnected();
 }
 
 void CClientImplementation::Setup(QTcpSocket& socket)
 {
     connect(&socket, SIGNAL(readyRead()), this, SLOT(OnReadReady()));
+    connect(&socket, SIGNAL(connected()), this, SLOT(OnConnected()));
+    connect(&socket, SIGNAL(disconnected()), this, SLOT(OnDisconnected()));
 }
 
 void CClientImplementation::CleanUp(QTcpSocket& socket)
 {
+    disconnect(&socket, SIGNAL(disconnected()), this, SLOT(OnDisconnected()));
+    disconnect(&socket, SIGNAL(connected()), this, SLOT(OnConnected()));
     disconnect(&socket, SIGNAL(readyRead()), this, SLOT(OnReadReady()));
 }
 
@@ -63,6 +73,16 @@ void CClientImplementation::OnReadReady()
 
     if (m_QueuedPacketSize != 0)
         TryReadPacket();
+}
+
+void CClientImplementation::OnConnected()
+{
+    NotifyListeners(&IClientListener::OnConnected);
+}
+
+void CClientImplementation::OnDisconnected()
+{
+    NotifyListeners(&IClientListener::OnDisconnected);
 }
 
 void CClientImplementation::TryReadHeader()

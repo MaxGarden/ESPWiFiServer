@@ -19,7 +19,7 @@ public:
     virtual bool IsConnected() const noexcept override final;
     virtual bool Send(const Packet& packet) override final;
 
-    void SetSocket(QTcpSocket* clientSocket);
+    virtual void SetSocket(QTcpSocket* clientSocket) override final;
 
 private:
     void Setup(QTcpSocket& socket);
@@ -30,6 +30,9 @@ private:
 
 private slots:
     void OnReadReady();
+
+    void OnConnected();
+    void OnDisconnected();
 
 private:
     PacketSizeType m_QueuedPacketSize = 0u;

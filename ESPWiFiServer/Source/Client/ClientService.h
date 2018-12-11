@@ -29,7 +29,6 @@ public:
     virtual ~IClientServiceFactory() = default;
 
     virtual byte GetServiceId() const noexcept = 0;
-
     virtual IClientServiceUniquePtr Create() = 0;
 };
 

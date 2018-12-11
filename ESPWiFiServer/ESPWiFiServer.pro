@@ -27,6 +27,8 @@ SOURCES += \
     Source/Client/ClientController.cpp                                              \
     Source/Client/ClientView.cpp                                                    \
     Source/Client/ClientService.cpp                                                 \
+    Source/Client/Services/ClientServiceBase.cpp                                    \
+    Source/Client/Services/DeviceTypeResolverService.cpp                            \
 
 HEADERS += \
     Source/Pointers.h                                                               \
@@ -49,6 +51,8 @@ HEADERS += \
     Source/Client/ClientController.h                                                \
     Source/Client/ClientView.h                                                      \
     Source/Client/ClientService.h                                                   \
+    Source/Client/Services/ClientServiceBase.h                                      \      
+    Source/Client/Services/DeviceTypeResolverService.h                              \
     
 
 FORMS += \

@@ -3,6 +3,7 @@
 #pragma once
 
 #include "DataModel.h"
+#include <QTcpServer>
 
 struct Packet
 {
@@ -28,6 +29,8 @@ public:
 
     virtual bool IsConnected() const noexcept = 0;
     virtual bool Send(const Packet& packet) = 0;
+
+    virtual void SetSocket(QTcpSocket* clientSocket) = 0;
 
     static IClientUniquePtr Create();
 };

@@ -3,6 +3,7 @@
 #pragma once
 
 #include <QMainWindow>
+#include <Server/Server.h>
 #include "ui_MainWindow.h"
 
 class CMainWindow final : public QMainWindow, public Ui::MainWindow
@@ -12,6 +13,9 @@ class CMainWindow final : public QMainWindow, public Ui::MainWindow
 public:
     CMainWindow();
     virtual ~CMainWindow() override final = default;
+
+private:
+    CServer m_Server;
 };
 
 #endif //__MAIN_WINDOW_H__

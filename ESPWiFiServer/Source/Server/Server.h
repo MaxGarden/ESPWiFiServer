@@ -3,6 +3,7 @@
 #pragma once
 
 #include <QTcpServer>
+#include "Client/Client.h"
 
 class CServer final : public QObject
 {
@@ -20,7 +21,8 @@ private slots:
     void OnNewConnection();
 
 private:
-    QTcpServer m_server;
+    QTcpServer m_Server;
+    std::vector<IClientSharedPtr> m_Clients;
 };
 
 #endif //__SERVER_H__
