@@ -2,6 +2,8 @@
 #define __LISTENABLE_BASE_H__
 #pragma once
 
+#include "Listener.h"
+
 template<typename SuperClass, typename ListenerType>
 class CListenableBase : public SuperClass
 {

@@ -176,14 +176,16 @@ inline const auto RemoveFromContainer(std::map<KeyType, ValueType>& map, const K
     return true;
 }
 
-template<typename ViewComponentType, typename EditorViewType>
-inline const auto GetViewComponent(EditorViewType& editorView)
+template<typename ClientServiceType, typename ClientController>
+inline const auto GetClientService(const ClientController& clientController)
 {
-    std::shared_ptr<ViewComponentType> result;
-
-    editorView.VisitViewComponents([&result](const auto& component)
+    ClientServiceType* result = nullptr;
+    clientController.VisitServices([&result](const auto& service)
     {
-        return (result = std::dynamic_pointer_cast<ViewComponentType>(component)) == nullptr;
+        if (result)
+            return;
+
+        result = std::dynamic_cast<ClientServiceType*>(&service);
     });
 
     return result;

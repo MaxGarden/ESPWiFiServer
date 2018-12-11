@@ -21,9 +21,12 @@ SOURCES += \
     Source/ESPWiFiServer/Utilities.cpp                                              \
     Source/MainWindow/MainWindow.cpp                                                \
     Source/Server/Server.cpp                                                        \
+    Source/Client/Client.cpp                                                        \
+    Source/Client/ClientListenerBase.cpp                                            \
     Source/Client/ClientImplementation.cpp                                          \
     Source/Client/ClientController.cpp                                              \
     Source/Client/ClientView.cpp                                                    \
+    Source/Client/ClientService.cpp                                                 \
 
 HEADERS += \
     Source/Pointers.h                                                               \
@@ -41,9 +44,11 @@ HEADERS += \
     Source/MainWindow/MainWindow.h                                                  \
     Source/Server/Server.h                                                          \
     Source/Client/Client.h                                                          \
+    Source/Client/ClientListenerBase.h                                              \
     Source/Client/ClientImplementation.h                                            \
     Source/Client/ClientController.h                                                \
     Source/Client/ClientView.h                                                      \
+    Source/Client/ClientService.h                                                   \
     
 
 FORMS += \

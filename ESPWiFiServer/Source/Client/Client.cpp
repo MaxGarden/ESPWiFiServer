@@ -17,8 +17,7 @@ public:
 
     virtual void OnReceived(const Packet& packet) = 0;
 
-    virtual void OnConnected() = 0;
-    virtual void OnDisconnected() = 0;
+    virtual void OnClosed() = 0;
 };
 
 class IClient : public IDataModel
@@ -26,7 +25,6 @@ class IClient : public IDataModel
 public:
     virtual ~IClient() override = default;
 
-    virtual bool IsConnected() const noexcept = 0;
     virtual bool Send(const Packet& packet) = 0;
 
     static IClientUniquePtr Create();

@@ -9,3 +9,7 @@ DECLARE_POINTERS(IServer);
 DECLARE_POINTERS(IClient);
 DECLARE_POINTERS(IClientController);
 DECLARE_POINTERS(IClientView);
+
+DECLARE_POINTERS(IClientServiceConnection);
+DECLARE_POINTERS(IClientService);
+DECLARE_POINTERS(IClientServiceFactory);

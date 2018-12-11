@@ -16,6 +16,7 @@ public:
     CClientImplementation() = default;
     virtual ~CClientImplementation() override final = default;
 
+    virtual bool IsConnected() const noexcept override final;
     virtual bool Send(const Packet& packet) override final;
 
     void SetSocket(QTcpSocket* clientSocket);

@@ -1,13 +1,18 @@
 #include "pch.h"
 #include "ClientImplementation.h"
 
+bool CClientImplementation::IsConnected() const noexcept
+{
+    return m_Socket && m_Socket->isOpen();
+}
+
 bool CClientImplementation::Send(const Packet& packet)
 {
     DEBUG_ASSERT(m_Socket && m_Socket->isOpen());
     if (!m_Socket || !m_Socket->isOpen())
         return false;
 
-    const auto packetRawSize = sizeof(byte) + packet.m_Payload.size();
+    const auto packetRawSize = sizeof(byte) + packet.Payload.size();
 
     if (packetRawSize > std::numeric_limits<PacketSizeType>::max())
         return false;
@@ -18,8 +23,8 @@ bool CClientImplementation::Send(const Packet& packet)
     auto sentDataSize = 0u;
 
     sentDataSize += m_Socket->write(reinterpret_cast<const char*>(&packetSize), sizeof(Packet));
-    sentDataSize += m_Socket->write(reinterpret_cast<const char*>(&packet.m_Type), sizeof(byte));
-    sentDataSize += m_Socket->write(reinterpret_cast<const char*>(packet.m_Payload.data()), packet.m_Payload.size() * sizeof(byte));
+    sentDataSize += m_Socket->write(reinterpret_cast<const char*>(&packet.Type), sizeof(byte));
+    sentDataSize += m_Socket->write(reinterpret_cast<const char*>(packet.Payload.data()), packet.Payload.size() * sizeof(byte));
 
     DEBUG_ASSERT(sentDataSize == expectedSentDataSize);
     return sentDataSize == expectedSentDataSize;
@@ -88,10 +93,10 @@ void CClientImplementation::TryReadPacket()
 
     Packet receivedPacket;
 
-    receivedPacket.m_Payload.resize(m_QueuedPacketSize - sizeof(byte));
+    receivedPacket.Payload.resize(m_QueuedPacketSize - sizeof(byte));
 
-    memcpy(&receivedPacket.m_Type, packet.constData(), sizeof(byte));
-    memcpy(receivedPacket.m_Payload.data(), (packet.constData() + sizeof(byte)), receivedPacket.m_Payload.size());
+    memcpy(&receivedPacket.Type, packet.constData(), sizeof(byte));
+    memcpy(receivedPacket.Payload.data(), (packet.constData() + sizeof(byte)), receivedPacket.Payload.size());
     m_QueuedPacketSize = 0u;
 
     NotifyListeners(&IClientListener::OnReceived, receivedPacket);
