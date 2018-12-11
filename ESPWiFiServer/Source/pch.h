@@ -5,10 +5,14 @@
 #include <vector>
 #include <map>
 #include <array>
+#include <optional>
+#include <functional>
+
+#include "Utilities.h"
 
 using byte = unsigned char;
 
-#define EDITOR_ASSERT(expression) assert(expression)
+#define DEBUG_ASSERT(expression) assert(expression)
 
 #define DECLARE_POINTERS(x)                                 \
     class x;                                                \
