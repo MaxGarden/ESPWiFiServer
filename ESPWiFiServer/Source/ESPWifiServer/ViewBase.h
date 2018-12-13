@@ -5,21 +5,21 @@
 #include "View.h"
 
 template<typename SuperClass, typename ControllerType>
-class CEditorViewBase : public SuperClass
+class CViewBase : public SuperClass
 {
 public:
-    CEditorViewBase() = default;
-    virtual ~CEditorViewBase() override = default;
+    CViewBase() = default;
+    virtual ~CViewBase() override = default;
 
-    virtual bool SetController(const IEditorControllerSharedPtr& controller) override;
+    virtual bool SetController(const IControllerSharedPtr& controller) override;
 
 protected:
     virtual void OnControllerChanged();
-    virtual IEditorListenerUniquePtr CreateListener();
+    virtual IListenerUniquePtr CreateListener();
 
     const std::shared_ptr<ControllerType>& GetController() const noexcept;
 
-    using Super = CEditorViewBase<SuperClass, ControllerType>;
+    using Super = CViewBase<SuperClass, ControllerType>;
 
 private:
     std::shared_ptr<ControllerType> m_Controller;

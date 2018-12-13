@@ -7,7 +7,7 @@
 class IClientView : public IView
 {
 public:
-    virtual ~IClientView() override = default;;
+    virtual ~IClientView() override = default;
 };
 
 #endif //__CLIENT_VIEW_H__

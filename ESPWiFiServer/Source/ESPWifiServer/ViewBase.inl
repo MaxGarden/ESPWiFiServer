@@ -1,24 +1,24 @@
 template<typename SuperClass, typename ControllerType>
-void CEditorViewBase<SuperClass, ControllerType>::OnControllerChanged()
+void CViewBase<SuperClass, ControllerType>::OnControllerChanged()
 {
     //to override
 }
 
 template<typename SuperClass, typename ControllerType>
-IEditorListenerUniquePtr CEditorViewBase<SuperClass, ControllerType>::CreateListener()
+IListenerUniquePtr CViewBase<SuperClass, ControllerType>::CreateListener()
 {
     //to override
     return nullptr;
 }
 
 template<typename SuperClass, typename ControllerType>
-const std::shared_ptr<ControllerType>& CEditorViewBase<SuperClass, ControllerType>::GetController() const noexcept
+const std::shared_ptr<ControllerType>& CViewBase<SuperClass, ControllerType>::GetController() const noexcept
 {
     return m_Controller;
 }
 
 template<typename SuperClass, typename ControllerType>
-bool CEditorViewBase<SuperClass, ControllerType>::SetController(const IEditorControllerSharedPtr& controller)
+bool CViewBase<SuperClass, ControllerType>::SetController(const IControllerSharedPtr& controller)
 {
     const auto resetListener = [this]()
     {
@@ -46,7 +46,7 @@ bool CEditorViewBase<SuperClass, ControllerType>::SetController(const IEditorCon
     if (auto listener = CreateListener())
     {
         const auto listenerHandle = m_Controller->RegisterListener(std::move(listener));
-        EDITOR_ASSERT(listenerHandle);
+        DEBUG_ASSERT(listenerHandle);
         m_ListenerHandle = listenerHandle.value_or(m_ListenerHandle);
     }
 
