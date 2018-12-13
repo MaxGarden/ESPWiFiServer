@@ -7,6 +7,7 @@
 #include <array>
 #include <optional>
 #include <functional>
+#include <set>
 
 #include "Utilities.h"
 

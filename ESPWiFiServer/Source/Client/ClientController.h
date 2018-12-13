@@ -9,6 +9,9 @@ class IClientControllerListener : public IListener
 {
 public:
     virtual ~IClientControllerListener() override = default;
+
+    virtual void OnServicePaired(IClientService& service) = 0;
+    virtual void OnServiceUnparied(IClientService& service) = 0;
 };
 
 class IClientController : public IController
@@ -16,8 +19,10 @@ class IClientController : public IController
 public:
     virtual ~IClientController() override = default;
 
-    virtual bool RegisterService(IClientServiceFactory& factory) = 0;
+    virtual bool RegisterServiceFactory(IClientServiceFactoryUniquePtr&& serviceFactory) = 0;
     virtual void VisitServices(const std::function<void(IClientService&)>& visitor) const = 0;
+
+    virtual void PairServices() = 0;
 
     static IClientControllerUniquePtr Create();
 };

@@ -7,7 +7,7 @@
 
 struct Packet
 {
-    byte Type;
+    byte ServicePort;
     std::vector<byte> Payload;
 };
 

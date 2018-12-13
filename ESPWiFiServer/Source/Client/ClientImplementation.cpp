@@ -23,7 +23,7 @@ bool CClientImplementation::Send(const Packet& packet)
     auto sentDataSize = 0u;
 
     sentDataSize += m_Socket->write(reinterpret_cast<const char*>(&packetSize), sizeof(PacketSizeType));
-    sentDataSize += m_Socket->write(reinterpret_cast<const char*>(&packet.Type), sizeof(byte));
+    sentDataSize += m_Socket->write(reinterpret_cast<const char*>(&packet.ServicePort), sizeof(byte));
     sentDataSize += m_Socket->write(reinterpret_cast<const char*>(packet.Payload.data()), packet.Payload.size() * sizeof(byte));
 
     DEBUG_ASSERT(sentDataSize == expectedSentDataSize);
@@ -115,7 +115,7 @@ void CClientImplementation::TryReadPacket()
 
     receivedPacket.Payload.resize(m_QueuedPacketSize - sizeof(byte));
 
-    memcpy(&receivedPacket.Type, packet.constData(), sizeof(byte));
+    memcpy(&receivedPacket.ServicePort, packet.constData(), sizeof(byte));
     memcpy(receivedPacket.Payload.data(), (packet.constData() + sizeof(byte)), receivedPacket.Payload.size());
     m_QueuedPacketSize = 0u;
 

@@ -23,15 +23,18 @@ private:
     IClientServiceConnectionSharedPtr m_Connection;
 };
 
-template<byte serviceId, typename ClientServiceType>
+template<typename ClientServiceType>
 class CClientServiceFactory final : public IClientServiceFactory
 {
 public:
-    CClientServiceFactory() = default;
+    CClientServiceFactory(std::string&& serviceName) : m_ServiceName(std::move(serviceName)) {};
     virtual ~CClientServiceFactory() override final = default;
 
-    virtual byte getServiceId() const noexcept override final { return serviceId; }
+    virtual const std::string& GetServiceName() const noexcept override final { return m_ServiceName; }
     virtual IClientServiceUniquePtr Create() override final { return std::make_unique<ClientServiceType>(); }
+
+private:
+    const std::string m_ServiceName;
 };
 
 #endif //__CLIENT_SERVICE_BASE_H__

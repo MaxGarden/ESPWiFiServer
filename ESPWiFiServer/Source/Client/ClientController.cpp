@@ -25,7 +25,7 @@ private:
 class CClientServiceConnection final : public IClientServiceConnection
 {
 public:
-    CClientServiceConnection(byte serviceId, CClientController* controller);
+    CClientServiceConnection(byte servicePort, CClientController* controller);
     virtual ~CClientServiceConnection() override final = default;
 
     virtual bool Send(std::vector<byte>&& payload) override;
@@ -33,20 +33,24 @@ public:
     void invalidate();
 
 private:
-    const byte m_ServiceId;
+    const byte m_servicePort;
     CClientController* m_Controller;
 };
 
 class CClientController final : public CControllerBase<IClientController, IClient, IClientControllerListener>
 {
+    using PairRequest = std::function<void(byte)>;
+
 public:
     CClientController() = default;
     virtual ~CClientController() override final = default;
 
-    virtual bool RegisterService(IClientServiceFactory& factory) override final;
+    virtual bool RegisterServiceFactory(IClientServiceFactoryUniquePtr&& serviceFactory) override final;
     virtual void VisitServices(const std::function<void(IClientService &)>& visitor) const override final;
 
-    bool Send(byte serviceId, std::vector<byte>&& payload);
+    virtual void PairServices() override final;
+
+    bool Send(byte servicePort, std::vector<byte>&& payload);
 
     void OnReceived(const Packet& packet);
 
@@ -55,17 +59,30 @@ public:
 
 protected:
     virtual void OnDataModelChanged() override final;
+    virtual IListenerUniquePtr CreateListener() override final;
+
+private:
+    void UnpairServices();
+
+    void SendPairRequest(IClientServiceFactory& factory);
+    void OnPairResponse(const std::vector<byte>& payload);
+    void OnPairResponse(const std::string& serviceName, byte servicePort);
 
 private:
     struct ServiceData
     {
-        const byte ServiceId;
+        const byte servicePort;
         IClientServiceUniquePtr Service;
         IClientServiceConnectionSharedPtr Connection;
     };
 
-    std::map<byte, ServiceData> m_Services;
+    std::vector<IClientServiceFactoryUniquePtr> m_ServicesFactories;
+    std::map<byte, ServiceData> m_PairedServices;
     bool m_IsConnected = false;
+
+    std::map<std::string, IClientServiceFactory&> m_PairRequests;
+
+    static const byte s_PairServicePort = 0;
 };
 
 CClientControllerListener::CClientControllerListener(CClientController& controller) :
@@ -88,8 +105,8 @@ void CClientControllerListener::OnDisconnected()
     m_Controller.OnDisconnected();
 }
 
-CClientServiceConnection::CClientServiceConnection(byte serviceId, CClientController* controller) :
-    m_ServiceId(serviceId),
+CClientServiceConnection::CClientServiceConnection(byte servicePort, CClientController* controller) :
+    m_servicePort(servicePort),
     m_Controller(controller)
 {
 }
@@ -100,7 +117,7 @@ bool CClientServiceConnection::Send(std::vector<byte>&& payload)
     if (!m_Controller)
         return false;
 
-    return m_Controller->Send(m_ServiceId, std::move(payload));
+    return m_Controller->Send(m_servicePort, std::move(payload));
 }
 
 void CClientServiceConnection::invalidate()
@@ -108,21 +125,12 @@ void CClientServiceConnection::invalidate()
     m_Controller = nullptr;
 }
 
-bool CClientController::RegisterService(IClientServiceFactory& factory)
+bool CClientController::RegisterServiceFactory(IClientServiceFactoryUniquePtr&& serviceFactory)
 {
-    const auto serviceId = factory.GetServiceId();
-    if (m_Services.find(serviceId) != m_Services.cend())
-    {
-        DEBUG_ASSERT(false);
-        return false;
-    }
-
-    auto service = factory.Create();
-    DEBUG_ASSERT(service);
-    if (!service)
+    if (!serviceFactory)
         return false;
 
-    m_Services.emplace(serviceId, ServiceData{ serviceId, std::move(service), nullptr });
+    m_ServicesFactories.emplace_back(std::move(serviceFactory));
     return true;
 }
 
@@ -131,14 +139,24 @@ void CClientController::VisitServices(const std::function<void(IClientService &)
     if (!visitor)
         return;
 
-    VisitObjectsMap(m_Services, [&visitor](const auto& serviceData)
+    VisitObjectsMap(m_PairedServices, [&visitor](const auto& serviceData)
     {
         if (const auto& service = serviceData.Service)
             visitor(*service);
     });
 }
 
-bool CClientController::Send(byte serviceId, std::vector<byte>&& payload)
+void CClientController::PairServices()
+{
+    UnpairServices();
+
+    VisitPointersContainer(m_ServicesFactories, [this](auto& serviceFactory)
+    {
+        SendPairRequest(serviceFactory);
+    });
+}
+
+bool CClientController::Send(byte servicePort, std::vector<byte>&& payload)
 {
     DEBUG_ASSERT(m_IsConnected);
     if (!m_IsConnected)
@@ -149,7 +167,7 @@ bool CClientController::Send(byte serviceId, std::vector<byte>&& payload)
     if (!client)
         return false;
 
-    return client->Send(Packet{ serviceId, std::move(payload) });
+    return client->Send(Packet{ servicePort, std::move(payload) });
 }
 
 void CClientController::OnReceived(const Packet& packet)
@@ -158,11 +176,14 @@ void CClientController::OnReceived(const Packet& packet)
     if (!m_IsConnected)
         return;
 
-    const auto serviceId = packet.Type;
+    const auto servicePort = packet.ServicePort;
 
-    const auto iterator = m_Services.find(serviceId);
-    DEBUG_ASSERT(iterator != m_Services.cend());
-    if (iterator == m_Services.cend())
+    if (servicePort == s_PairServicePort)
+        return OnPairResponse(packet.Payload);
+
+    const auto iterator = m_PairedServices.find(servicePort);
+    DEBUG_ASSERT(iterator != m_PairedServices.cend());
+    if (iterator == m_PairedServices.cend())
         return;
 
     if (const auto& service = iterator->second.Service)
@@ -175,17 +196,7 @@ void CClientController::OnConnected()
     if (m_IsConnected)
         return;
 
-    VisitObjectsMap(m_Services, [this](auto& serviceData)
-    {
-        const auto& service = serviceData.Service;
-        if (!service)
-            return;
-
-        const auto serviceConnection = std::make_shared<CClientServiceConnection>(serviceData.ServiceId, this);
-        service->OnBind(serviceConnection);
-    });
-
-    m_IsConnected = false;
+    m_IsConnected = true;
 }
 
 void CClientController::OnDisconnected()
@@ -194,21 +205,7 @@ void CClientController::OnDisconnected()
     if (!m_IsConnected)
         return;
 
-    VisitObjectsMap(m_Services, [](auto& serviceData)
-    {
-        const auto& service = serviceData.Service;
-        if (!service)
-            return;
-
-        auto& connection = serviceData.Connection;
-
-        service->OnUnbind(connection);
-
-        if (const auto serviceConnection = dynamic_cast<CClientServiceConnection*>(connection.get()))
-            serviceConnection->invalidate();
-
-        connection.reset();
-    });
+    UnpairServices();
 
     m_IsConnected = false;
 }
@@ -231,6 +228,83 @@ void CClientController::OnDataModelChanged()
         else
             OnConnected();
     }
+}
+
+IListenerUniquePtr CClientController::CreateListener()
+{
+    return std::make_unique<CClientControllerListener>(*this);
+}
+
+void CClientController::UnpairServices()
+{
+    VisitObjectsMap(m_PairedServices, [this](auto& serviceData)
+    {
+        const auto& service = serviceData.Service;
+        if (!service)
+            return;
+
+        auto& connection = serviceData.Connection;
+
+        service->OnUnbind(connection);
+
+        if (const auto serviceConnection = dynamic_cast<CClientServiceConnection*>(connection.get()))
+            serviceConnection->invalidate();
+
+        connection.reset();
+
+        NotifyListeners(&IClientControllerListener::OnServiceUnparied, *service);
+    });
+
+    m_PairedServices.clear();
+    m_PairRequests.clear();
+}
+
+void CClientController::SendPairRequest(IClientServiceFactory& factory)
+{
+    const auto& serviceName = factory.GetServiceName();
+    std::vector<byte> payload(serviceName.cbegin(), serviceName.cend());
+    const auto result = Send(s_PairServicePort, std::move(payload));
+    DEBUG_ASSERT(result);
+}
+
+void CClientController::OnPairResponse(const std::vector<byte>& payload)
+{
+    DEBUG_ASSERT(!payload.empty());
+    if (payload.empty())
+        return;
+
+    auto payloadOffset = 0u;
+    byte servicePort;
+    memcpy(&servicePort, payload.data(), sizeof(servicePort));
+    payloadOffset += sizeof(servicePort);
+
+    std::string serviceName;
+    serviceName.resize(payload.size() - payloadOffset);
+
+    memcpy(reinterpret_cast<void*>(serviceName.data()), payload.data() + payloadOffset, serviceName.size());
+}
+
+void CClientController::OnPairResponse(const std::string& serviceName, byte servicePort)
+{
+    const auto iterator = m_PairRequests.find(serviceName);
+    DEBUG_ASSERT(iterator != m_PairRequests.cend());
+    if (iterator == m_PairRequests.cend())
+        return;
+
+    auto& factory = iterator->second;
+
+    auto service = factory.Create();
+    m_PairRequests.erase(iterator);
+
+    DEBUG_ASSERT(service);
+    if (!service)
+        return;
+
+    const auto serviceConnection = std::make_shared<CClientServiceConnection>(servicePort, this);
+    m_PairedServices.emplace(servicePort, ServiceData{ servicePort, std::move(service), serviceConnection });
+
+    service->OnBind(serviceConnection);
+    NotifyListeners(&IClientControllerListener::OnServicePaired, *service);
 }
 
 IClientControllerUniquePtr IClientController::Create()

@@ -180,12 +180,12 @@ template<typename ClientServiceType, typename ClientController>
 inline const auto GetClientService(const ClientController& clientController)
 {
     ClientServiceType* result = nullptr;
-    clientController.VisitServices([&result](const auto& service)
+    clientController.VisitServices([&result](auto& service)
     {
         if (result)
             return;
 
-        result = std::dynamic_cast<ClientServiceType*>(&service);
+        result = dynamic_cast<ClientServiceType*>(&service);
     });
 
     return result;

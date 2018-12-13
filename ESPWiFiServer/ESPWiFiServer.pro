@@ -25,10 +25,11 @@ SOURCES += \
     Source/Client/ClientListenerBase.cpp                                            \
     Source/Client/ClientImplementation.cpp                                          \
     Source/Client/ClientController.cpp                                              \
+    Source/Client/ClientControllerListenerBase.cpp                                  \
     Source/Client/ClientView.cpp                                                    \
     Source/Client/ClientService.cpp                                                 \
-    Source/Client/Services/ClientServiceBase.cpp                                    \
-    Source/Client/Services/DeviceTypeResolverService.cpp                            \
+    Source/Client/Services/ClientServiceBase.cpp                                    \      
+    Source/Client/Services/DeviceIdService.cpp                                      \
 
 HEADERS += \
     Source/Pointers.h                                                               \
@@ -49,10 +50,11 @@ HEADERS += \
     Source/Client/ClientListenerBase.h                                              \
     Source/Client/ClientImplementation.h                                            \
     Source/Client/ClientController.h                                                \
+    Source/Client/ClientControllerListenerBase.h                                    \
     Source/Client/ClientView.h                                                      \
     Source/Client/ClientService.h                                                   \
     Source/Client/Services/ClientServiceBase.h                                      \      
-    Source/Client/Services/DeviceTypeResolverService.h                              \
+    Source/Client/Services/DeviceIdService.h                                        \
     
 
 FORMS += \

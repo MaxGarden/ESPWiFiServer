@@ -1,7 +1,7 @@
 #include "pch.h"
-#include "DeviceTypeResolverService.h"
+#include "DeviceIdService.h"
 
-bool CDeviceTypeResolverService::ResolveDeviceType(CalllbackType&& callback)
+bool CDeviceIdService::RequestDeviceId(CalllbackType&& callback)
 {
     DEBUG_ASSERT(callback);
     if (!callback)
@@ -14,7 +14,7 @@ bool CDeviceTypeResolverService::ResolveDeviceType(CalllbackType&& callback)
     return result;
 }
 
-void CDeviceTypeResolverService::OnReceived(const std::vector<byte>& payload)
+void CDeviceIdService::OnReceived(const std::vector<byte>& payload)
 {
     if (payload.size() != 1)
         return;
@@ -26,7 +26,7 @@ void CDeviceTypeResolverService::OnReceived(const std::vector<byte>& payload)
         NotifyCallbacks(message);
 }
 
-void CDeviceTypeResolverService::NotifyCallbacks(byte deviceType)
+void CDeviceIdService::NotifyCallbacks(byte deviceType)
 {
     for (const auto& callback : m_Callbacks)
     {
