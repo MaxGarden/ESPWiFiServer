@@ -46,7 +46,7 @@ public:
     virtual ~CClientController() override final = default;
 
     virtual bool RegisterServiceFactory(IClientServiceFactoryUniquePtr&& serviceFactory) override final;
-    virtual void VisitServices(const std::function<void(IClientService &)>& visitor) const override final;
+    virtual void VisitServices(const VisitorType<IClientService>& visitor) const override final;
 
     virtual void PairServices() override final;
 
@@ -134,7 +134,7 @@ bool CClientController::RegisterServiceFactory(IClientServiceFactoryUniquePtr&& 
     return true;
 }
 
-void CClientController::VisitServices(const std::function<void(IClientService &)>& visitor) const
+void CClientController::VisitServices(const VisitorType<IClientService>& visitor) const
 {
     if (!visitor)
         return;

@@ -3,8 +3,8 @@
 
 CMainWindow::CMainWindow() :
     QMainWindow(nullptr),
-    m_Server(this)
+    m_Server(IServer::Create())
 {
     setupUi(this);
-    DEBUG_ASSERT(m_Server.StartListening(1234));
+    DEBUG_ASSERT(m_Server->StartListening(1234));
 }

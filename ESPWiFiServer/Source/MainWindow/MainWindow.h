@@ -15,7 +15,7 @@ public:
     virtual ~CMainWindow() override final = default;
 
 private:
-    CServer m_Server;
+    IServerUniquePtr m_Server;
 };
 
 #endif //__MAIN_WINDOW_H__

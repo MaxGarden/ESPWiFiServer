@@ -21,6 +21,11 @@ SOURCES += \
     Source/ESPWiFiServer/Utilities.cpp                                              \
     Source/MainWindow/MainWindow.cpp                                                \
     Source/Server/Server.cpp                                                        \
+    Source/Server/ServerListenerBase.cpp                                            \
+    Source/Server/ServerImplementation.cpp                                          \
+    Source/Server/ServerController.cpp                                              \
+    Source/Server/ServerControllerListenerBase.cpp                                  \
+    Source/Server/ServerView.cpp                                                    \
     Source/Client/Client.cpp                                                        \
     Source/Client/ClientListenerBase.cpp                                            \
     Source/Client/ClientImplementation.cpp                                          \
@@ -31,6 +36,8 @@ SOURCES += \
     Source/Client/ClientService.cpp                                                 \
     Source/Client/Services/ClientServiceBase.cpp                                    \      
     Source/Client/Services/DeviceIdService.cpp                                      \
+    Source/Client/Transmitter/ClientTransmitterView.cpp                             \
+    Source/Client/Receiver/ClientReceiverView.cpp                                   \
 
 HEADERS += \
     Source/Pointers.h                                                               \
@@ -47,6 +54,11 @@ HEADERS += \
     Source/ESPWiFiServer/Utilities.h                                                \
     Source/MainWindow/MainWindow.h                                                  \
     Source/Server/Server.h                                                          \
+    Source/Server/ServerListenerBase.h                                              \
+    Source/Server/ServerImplementation.h                                            \
+    Source/Server/ServerController.h                                                \
+    Source/Server/ServerControllerListenerBase.h                                    \
+    Source/Server/ServerView.h                                                      \
     Source/Client/Client.h                                                          \
     Source/Client/ClientListenerBase.h                                              \
     Source/Client/ClientImplementation.h                                            \
@@ -57,6 +69,8 @@ HEADERS += \
     Source/Client/ClientService.h                                                   \
     Source/Client/Services/ClientServiceBase.h                                      \      
     Source/Client/Services/DeviceIdService.h                                        \
+    Source/Client/Transmitter/ClientTransmitterView.h                               \
+    Source/Client/Receiver/ClientReceiverView.h                                     \
     
 
 FORMS += \

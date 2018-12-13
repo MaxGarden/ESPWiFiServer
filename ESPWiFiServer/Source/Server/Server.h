@@ -2,27 +2,27 @@
 #define __SERVER_H__
 #pragma once
 
-#include <QTcpServer>
+#include "DataModel.h"
 #include "Client/Client.h"
 
-class CServer final : public QObject
+class IServerListener : public IListener
 {
-    Q_OBJECT
 public:
-    CServer(QObject* parent = nullptr);
-    virtual ~CServer() override final;
+    virtual ~IServerListener() override = default;
 
-    bool StartListening(unsigned short int port);
+    virtual void OnClientConnected(const IClientSharedPtr& client) = 0;
+    virtual void OnClientDisconnected(const IClientSharedPtr& client) = 0;
+};
 
-private:
-    void Setup();
+class IServer : public IDataModel
+{
+public:
+    virtual ~IServer() override = default;
 
-private slots:
-    void OnNewConnection();
+    virtual bool StartListening(unsigned short int port) = 0;
+    virtual void VisitClients(const ConstVisitorType<IClientSharedPtr>& visitor) = 0;
 
-private:
-    QTcpServer m_Server;
-    std::vector<IClientSharedPtr> m_Clients;
+    static IServerUniquePtr Create();
 };
 
 #endif //__SERVER_H__

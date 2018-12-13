@@ -20,7 +20,7 @@ public:
     virtual ~IClientController() override = default;
 
     virtual bool RegisterServiceFactory(IClientServiceFactoryUniquePtr&& serviceFactory) = 0;
-    virtual void VisitServices(const std::function<void(IClientService&)>& visitor) const = 0;
+    virtual void VisitServices(const VisitorType<IClientService>& visitor) const = 0;
 
     virtual void PairServices() = 0;
 
