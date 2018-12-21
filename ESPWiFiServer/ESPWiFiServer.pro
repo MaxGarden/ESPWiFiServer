@@ -33,6 +33,7 @@ SOURCES += \
     Source/Client/ClientControllerListenerBase.cpp                                  \
     Source/Client/ClientView.cpp                                                    \
     Source/Client/ClientViewBase.cpp                                                \
+    Source/Client/ClientBuilder.cpp                                                 \
     Source/Client/ClientService.cpp                                                 \
     Source/Client/Services/ClientServiceBase.cpp                                    \      
     Source/Client/Services/DeviceIdService.cpp                                      \
@@ -66,6 +67,7 @@ HEADERS += \
     Source/Client/ClientControllerListenerBase.h                                    \
     Source/Client/ClientView.h                                                      \
     Source/Client/ClientViewBase.h                                                  \
+    Source/Client/ClientBuilder.h                                                   \
     Source/Client/ClientService.h                                                   \
     Source/Client/Services/ClientServiceBase.h                                      \      
     Source/Client/Services/DeviceIdService.h                                        \

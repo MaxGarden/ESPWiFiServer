@@ -11,6 +11,8 @@ DECLARE_POINTERS(IServerView);
 DECLARE_POINTERS(IClient);
 DECLARE_POINTERS(IClientController);
 DECLARE_POINTERS(IClientView);
+DECLARE_POINTERS(IClientBuilder);
+DECLARE_POINTERS(IClientBuildersProvider);
 
 DECLARE_POINTERS(IClientServiceConnection);
 DECLARE_POINTERS(IClientService);

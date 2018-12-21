@@ -3,7 +3,9 @@
 #pragma once
 
 #include <QMainWindow>
-#include <Server/Server.h>
+#include "Server/Server.h"
+#include "Server/ServerController.h"
+#include "Client/ClientBuilder.h"
 #include "ui_MainWindow.h"
 
 class CMainWindow final : public QMainWindow, public Ui::MainWindow
@@ -14,8 +16,15 @@ public:
     CMainWindow();
     virtual ~CMainWindow() override final = default;
 
+    bool Initialize(unsigned short int serverPort);
+
 private:
-    IServerUniquePtr m_Server;
+    IServerSharedPtr m_Server;
+    IServerControllerUniquePtr m_ServerController;
+
+    IClientBuildersProviderUniquePtr m_BuildersProvider;
+
+    bool m_Initialized = false;
 };
 
 #endif //__MAIN_WINDOW_H__
