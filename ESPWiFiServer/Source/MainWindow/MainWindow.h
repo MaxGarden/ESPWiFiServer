@@ -5,6 +5,7 @@
 #include <QMainWindow>
 #include "Server/Server.h"
 #include "Server/ServerController.h"
+#include "Server/ServerView.h"
 #include "Client/ClientBuilder.h"
 #include "ui_MainWindow.h"
 
@@ -20,7 +21,8 @@ public:
 
 private:
     IServerSharedPtr m_Server;
-    IServerControllerUniquePtr m_ServerController;
+    IServerControllerSharedPtr m_ServerController;
+    IServerViewUniquePtr m_ServerView;
 
     IClientBuildersProviderUniquePtr m_BuildersProvider;
 

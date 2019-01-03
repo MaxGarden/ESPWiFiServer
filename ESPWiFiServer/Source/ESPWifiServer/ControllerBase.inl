@@ -23,12 +23,12 @@ bool CControllerBase<SuperClass, DataModelType, ListenerType>::SetDataModel(cons
         return true;
     }
 
-    const auto curveEditorDataModel = std::dynamic_pointer_cast<DataModelType>(dataModel);
-    if (!curveEditorDataModel)
+    const auto castedDataModel = std::dynamic_pointer_cast<DataModelType>(dataModel);
+    if (!castedDataModel)
         return false;
 
     resetListener();
-    m_DataModel = std::move(curveEditorDataModel);
+    m_DataModel = std::move(castedDataModel);
 
     if (auto listener = CreateListener())
     {

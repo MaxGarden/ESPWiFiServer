@@ -24,11 +24,14 @@ public:
     CServerController() = default;
     virtual ~CServerController() override = default;
 
+    virtual void VisitClients(const ConstVisitorType<IClientControllerSharedPtr>& visitor) override final;
+
     void OnClientConnected(const IClientSharedPtr& client);
     void OnClientDisconnected(const IClientSharedPtr& client);
 
 protected:
     virtual void OnDataModelChanged() override final;
+    virtual IListenerUniquePtr CreateListener() override final;
 
 private:
     std::map<IClientSharedPtr, IClientControllerSharedPtr> m_Clients;
@@ -37,6 +40,11 @@ private:
 CServerControllerListener::CServerControllerListener(CServerController& serverController) :
     m_ServerController(serverController)
 {
+}
+
+void CServerController::VisitClients(const ConstVisitorType<IClientControllerSharedPtr>& visitor)
+{
+    VisitObjectsMap(m_Clients, visitor);
 }
 
 void CServerControllerListener::OnClientConnected(const IClientSharedPtr& client)
@@ -99,6 +107,11 @@ void CServerController::OnDataModelChanged()
     {
         OnClientConnected(client);
     });
+}
+
+IListenerUniquePtr CServerController::CreateListener()
+{
+    return std::make_unique<CServerControllerListener>(*this);
 }
 
 IServerControllerUniquePtr IServerController::Create()

@@ -18,6 +18,8 @@ class IServerController : public IController
 public:
     virtual ~IServerController() override = default;
 
+    virtual void VisitClients(const ConstVisitorType<IClientControllerSharedPtr>& visitor) = 0;
+
     static IServerControllerUniquePtr Create();
 };
 

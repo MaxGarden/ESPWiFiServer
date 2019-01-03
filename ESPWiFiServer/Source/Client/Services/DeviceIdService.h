@@ -10,7 +10,7 @@ class CDeviceIdService final : public CClientServiceBase
     using RequestCallbackType = std::function<void(byte)>;
 
 public:
-    using PairCallbackType = std::function<void(bool)>;
+    using PairCallbackType = std::function<void(const std::optional<byte>&)>;
 
     CDeviceIdService(IClientController& controller, const IClientBuildersProvider& buildersProvider);
     virtual ~CDeviceIdService() override final = default;

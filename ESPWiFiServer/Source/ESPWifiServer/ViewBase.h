@@ -28,4 +28,4 @@ private:
 
 #include "ViewBase.inl"
 
-#endif //__CURVE_EDITOR_VIEW_BASE_H__
+#endif //__VIEW_BASE_H__

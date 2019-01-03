@@ -30,6 +30,8 @@ public:
     virtual bool IsConnected() const noexcept = 0;
     virtual bool Send(const Packet& packet) = 0;
 
+    virtual bool Disconnect() = 0;
+
     virtual void SetSocket(QTcpSocket* clientSocket) = 0;
 
     static IClientUniquePtr Create();

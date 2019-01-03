@@ -1,11 +1,11 @@
 template<typename SuperClass, typename ListenerType>
 std::optional<ListenerHandle> CListenableBase<SuperClass, ListenerType>::RegisterListener(IListenerUniquePtr&& listener)
 {
-    const auto curveEditorListener = dynamic_cast<ListenerType*>(listener.get());
-    if (!curveEditorListener)
+    const auto castedListener = dynamic_cast<ListenerType*>(listener.get());
+    if (!castedListener)
         return std::nullopt;
 
-    m_Listeners.emplace_back(std::unique_ptr<ListenerType>(curveEditorListener));
+    m_Listeners.emplace_back(std::unique_ptr<ListenerType>(castedListener));
     return reinterpret_cast<ListenerHandle>(listener.release());
 }
 

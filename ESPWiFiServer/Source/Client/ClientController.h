@@ -24,6 +24,8 @@ public:
 
     virtual void PairServices() = 0;
 
+    virtual bool Disconnect() = 0;
+
     static IClientControllerUniquePtr Create();
 };
 

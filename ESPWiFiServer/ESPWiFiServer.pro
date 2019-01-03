@@ -26,12 +26,14 @@ SOURCES += \
     Source/Server/ServerController.cpp                                              \
     Source/Server/ServerControllerListenerBase.cpp                                  \
     Source/Server/ServerView.cpp                                                    \
+    Source/Server/ServerViewImplementation.cpp                                      \
     Source/Client/Client.cpp                                                        \
     Source/Client/ClientListenerBase.cpp                                            \
     Source/Client/ClientImplementation.cpp                                          \
     Source/Client/ClientController.cpp                                              \
     Source/Client/ClientControllerListenerBase.cpp                                  \
     Source/Client/ClientView.cpp                                                    \
+    Source/Client/ClientPairView.cpp                                                \
     Source/Client/ClientViewBase.cpp                                                \
     Source/Client/ClientBuilder.cpp                                                 \
     Source/Client/ClientService.cpp                                                 \
@@ -60,12 +62,14 @@ HEADERS += \
     Source/Server/ServerController.h                                                \
     Source/Server/ServerControllerListenerBase.h                                    \
     Source/Server/ServerView.h                                                      \
+    Source/Server/ServerViewImplementation.h                                        \
     Source/Client/Client.h                                                          \
     Source/Client/ClientListenerBase.h                                              \
     Source/Client/ClientImplementation.h                                            \
     Source/Client/ClientController.h                                                \
     Source/Client/ClientControllerListenerBase.h                                    \
     Source/Client/ClientView.h                                                      \
+    Source/Client/ClientPairView.h                                                  \
     Source/Client/ClientViewBase.h                                                  \
     Source/Client/ClientBuilder.h                                                   \
     Source/Client/ClientService.h                                                   \
@@ -77,3 +81,4 @@ HEADERS += \
 
 FORMS += \
     Source/MainWindow/UI/MainWindow.ui                                              \
+    Source/Server/UI/ServerView.ui                                                  \

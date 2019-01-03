@@ -36,12 +36,12 @@ bool CViewBase<SuperClass, ControllerType>::SetController(const IControllerShare
         return true;
     }
 
-    const auto curveEditorController = std::dynamic_pointer_cast<ControllerType>(controller);
-    if (!curveEditorController)
+    const auto castedController = std::dynamic_pointer_cast<ControllerType>(controller);
+    if (!castedController)
         return false;
 
     resetListener();
-    m_Controller = std::move(curveEditorController);
+    m_Controller = std::move(castedController);
 
     if (auto listener = CreateListener())
     {

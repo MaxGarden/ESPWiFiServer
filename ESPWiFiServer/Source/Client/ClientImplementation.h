@@ -19,6 +19,8 @@ public:
     virtual bool IsConnected() const noexcept override final;
     virtual bool Send(const Packet& packet) override final;
 
+    virtual bool Disconnect() override final;
+
     virtual void SetSocket(QTcpSocket* clientSocket) override final;
 
 private:

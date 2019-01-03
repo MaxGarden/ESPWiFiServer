@@ -50,6 +50,8 @@ public:
 
     virtual void PairServices() override final;
 
+    virtual bool Disconnect() override final;
+
     bool Send(byte servicePort, std::vector<byte>&& payload);
 
     void OnReceived(const Packet& packet);
@@ -154,6 +156,15 @@ void CClientController::PairServices()
     {
         SendPairRequest(serviceFactory);
     });
+}
+
+bool CClientController::Disconnect()
+{
+    const auto& dataModel = GetDataModel();
+    if (!dataModel)
+        return false;
+
+    return dataModel->Disconnect();
 }
 
 bool CClientController::Send(byte servicePort, std::vector<byte>&& payload)
@@ -265,6 +276,8 @@ void CClientController::SendPairRequest(IClientServiceFactory& factory)
     std::vector<byte> payload(serviceName.cbegin(), serviceName.cend());
     const auto result = Send(s_PairServicePort, std::move(payload));
     DEBUG_ASSERT(result);
+    if (result)
+        m_PairRequests.emplace(serviceName, factory);
 }
 
 void CClientController::OnPairResponse(const std::vector<byte>& payload)
@@ -282,6 +295,7 @@ void CClientController::OnPairResponse(const std::vector<byte>& payload)
     serviceName.resize(payload.size() - payloadOffset);
 
     memcpy(reinterpret_cast<void*>(serviceName.data()), payload.data() + payloadOffset, serviceName.size());
+    OnPairResponse(serviceName, servicePort);
 }
 
 void CClientController::OnPairResponse(const std::string& serviceName, byte servicePort)
@@ -300,11 +314,12 @@ void CClientController::OnPairResponse(const std::string& serviceName, byte serv
     if (!service)
         return;
 
+    const auto serviceRaw = service.get();
     const auto serviceConnection = std::make_shared<CClientServiceConnection>(servicePort, this);
     m_PairedServices.emplace(servicePort, ServiceData{ servicePort, std::move(service), serviceConnection });
 
-    service->OnBind(serviceConnection);
-    NotifyListeners(&IClientControllerListener::OnServicePaired, *service);
+    serviceRaw->OnBind(serviceConnection);
+    NotifyListeners(&IClientControllerListener::OnServicePaired, *serviceRaw);
 }
 
 IClientControllerUniquePtr IClientController::Create()

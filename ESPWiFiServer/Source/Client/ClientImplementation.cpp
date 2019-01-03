@@ -30,6 +30,21 @@ bool CClientImplementation::Send(const Packet& packet)
     return sentDataSize == expectedSentDataSize;
 }
 
+bool CClientImplementation::Disconnect()
+{
+    const auto isConnected = IsConnected();
+    DEBUG_ASSERT(isConnected);
+    if (!isConnected)
+        return false;
+
+    DEBUG_ASSERT(m_Socket);
+    if (!m_Socket)
+        return false;
+
+    m_Socket->close();
+    return true;
+}
+
 void CClientImplementation::SetSocket(QTcpSocket* clientSocket)
 {
     DEBUG_ASSERT(m_Socket == nullptr);

@@ -13,5 +13,6 @@ int main(int argc, char** argv)
         return -1;
 
     mainWindow.show();
+
     return app.exec();
 }

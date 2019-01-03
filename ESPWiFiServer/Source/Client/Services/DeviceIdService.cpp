@@ -13,7 +13,7 @@ bool CDeviceIdService::Pair(PairCallbackType&& callback)
     if (!callback)
         return false;
 
-    const auto requestCallback = [this, callback = std::move(callback)](auto deviceId)
+    auto requestCallback = [this, callback = std::move(callback)](auto deviceId)
     {
         const auto builder = m_BuildersProvider.GetBuilder(deviceId);
         DEBUG_ASSERT(builder);
@@ -24,12 +24,12 @@ bool CDeviceIdService::Pair(PairCallbackType&& callback)
         DEBUG_ASSERT(buildResult);
 
         m_Controller.PairServices();
-        callback(buildResult);
+        callback(buildResult ? std::optional<byte>{deviceId} : std::nullopt);
     };
 
-    if (!RequestDeviceId(requestCallback))
+    if (!RequestDeviceId(std::move(requestCallback)))
     {
-        callback(false);
+        callback(std::nullopt);
         return false;
     }
 
