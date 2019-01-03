@@ -44,6 +44,8 @@ bool CMainWindow::Initialize(unsigned short int serverPort)
     if (!m_BuildersProvider)
         return false;
 
+    BuildClientBuildersProvider(*m_BuildersProvider);
+
     DEBUG_ASSERT(m_ServerViewWidget);
     if (!m_ServerViewWidget)
         return false;
@@ -60,4 +62,11 @@ bool CMainWindow::Initialize(unsigned short int serverPort)
     }
 
     return (m_Initialized = true);
+}
+
+#include "Client/Builders/TransmitterBuilder.h"
+
+void CMainWindow::BuildClientBuildersProvider(IClientBuildersProvider& buildersProvider)
+{
+    buildersProvider.RegisterBuilder('S', std::make_unique<CTranmitterBuilder>());
 }

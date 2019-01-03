@@ -38,9 +38,12 @@ SOURCES += \
     Source/Client/ClientBuilder.cpp                                                 \
     Source/Client/ClientService.cpp                                                 \
     Source/Client/Services/ClientServiceBase.cpp                                    \      
-    Source/Client/Services/DeviceIdService.cpp                                      \
+    Source/Client/Services/DeviceIdService.cpp                                      \      
+    Source/Client/Services/TransmissionService.cpp                                  \
     Source/Client/Transmitter/ClientTransmitterView.cpp                             \
     Source/Client/Receiver/ClientReceiverView.cpp                                   \
+    Source/Client/Builders/ClientBuilderBase.cpp                                    \
+    Source/Client/Builders/TransmitterBuilder.cpp                                   \
 
 HEADERS += \
     Source/Pointers.h                                                               \
@@ -74,9 +77,12 @@ HEADERS += \
     Source/Client/ClientBuilder.h                                                   \
     Source/Client/ClientService.h                                                   \
     Source/Client/Services/ClientServiceBase.h                                      \      
-    Source/Client/Services/DeviceIdService.h                                        \
+    Source/Client/Services/DeviceIdService.h                                        \      
+    Source/Client/Services/TransmissionService.h                                    \
     Source/Client/Transmitter/ClientTransmitterView.h                               \
     Source/Client/Receiver/ClientReceiverView.h                                     \
+    Source/Client/Builders/ClientBuilderBase.h                                      \
+    Source/Client/Builders/TransmitterBuilder.h                                     \
     
 
 FORMS += \

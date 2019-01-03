@@ -29,7 +29,7 @@ protected:
 
 private:
     void OnResolvedDeviceType(const IClientPairView& clientPairView, const std::optional<byte>& deviceId);
-    void CreateClientView(const IClientControllerSharedPtr& clientController, byte deviceId);
+    void CreateClientView(IClientControllerSharedPtr clientController, byte deviceId);
     void AddClientViewTab(const IClientControllerSharedPtr& clientController, IClientViewUniquePtr&& clientView);
 
 private:

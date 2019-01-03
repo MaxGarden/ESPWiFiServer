@@ -143,7 +143,7 @@ void CServerViewImplementation::OnResolvedDeviceType(const IClientPairView& clie
         CreateClientView(iterator->first, *deviceId);
 }
 
-void CServerViewImplementation::CreateClientView(const IClientControllerSharedPtr& clientController, byte deviceId)
+void CServerViewImplementation::CreateClientView(IClientControllerSharedPtr clientController, byte deviceId)
 {
     DEBUG_ASSERT(clientController);
     if (!clientController)

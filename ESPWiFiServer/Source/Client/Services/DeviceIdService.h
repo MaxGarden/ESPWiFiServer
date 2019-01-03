@@ -17,6 +17,7 @@ public:
 
     bool Pair(PairCallbackType&& callback);
 
+protected:
     virtual void OnReceived(const std::vector<byte>& payload) override final;
 
 private:
