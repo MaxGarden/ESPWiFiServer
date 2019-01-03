@@ -28,5 +28,5 @@ bool CTransmissionService::TransmitCommand(byte type, unsigned short int argumen
     if (!connection)
         return false;
 
-    return connection->Send({ type, static_cast<byte>(argument << 8), static_cast<byte>(argument) });
+    return connection->Send({ type, static_cast<byte>(argument), static_cast<byte>(argument >> 8) });
 }

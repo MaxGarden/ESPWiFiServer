@@ -20,7 +20,8 @@ public:
     bool Initialize(unsigned short int serverPort);
 
 private:
-    void BuildClientBuildersProvider(IClientBuildersProvider& buildersProvider);
+    bool BuildClientBuildersProvider(IClientBuildersProvider& buildersProvider);
+    bool RegistersClientsViews(IServerView& serverView);
 
 private:
     IServerSharedPtr m_Server;

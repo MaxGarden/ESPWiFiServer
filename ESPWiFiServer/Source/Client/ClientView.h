@@ -11,8 +11,6 @@ public:
     virtual ~IClientView() override = default;
 
     virtual const std::string& GetName() const noexcept = 0;
-
-    static IClientViewUniquePtr Create();
 };
 
 class IClientViewFactory
@@ -20,7 +18,7 @@ class IClientViewFactory
 public:
     virtual ~IClientViewFactory() = default;
 
-    virtual IClientViewUniquePtr Create() = 0;
+    virtual IClientViewUniquePtr Create(QWidget* parent = nullptr) = 0;
 };
 
 #endif //__CLIENT_VIEW_H__

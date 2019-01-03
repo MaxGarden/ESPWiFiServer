@@ -61,8 +61,9 @@ void CDeviceIdService::OnReceived(const std::vector<byte>& payload)
         Send({ s_DeviceType });
     else if (m_RequestCallback)
     {
-        m_RequestCallback(message);
-        m_RequestCallback = RequestCallbackType{};
+        RequestCallbackType callback;
+        m_RequestCallback.swap(callback);
+        callback(message);
     }
 }
 

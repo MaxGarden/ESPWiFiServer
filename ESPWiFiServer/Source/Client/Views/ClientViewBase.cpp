@@ -16,6 +16,13 @@ void CClientViewBaseListener::OnServiceUnparied(IClientService& service)
     m_ClientView.OnServiceUnpaired(service);
 }
 
+const std::string& CClientViewBase::GetName() const noexcept
+{
+    static const std::string name = "UNDEFINED";
+    DEBUG_ASSERT(false);
+    return name;
+}
+
 void CClientViewBase::OnServicePaired(IClientService&)
 {
     //to override

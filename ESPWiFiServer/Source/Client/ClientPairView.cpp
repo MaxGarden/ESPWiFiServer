@@ -86,8 +86,9 @@ void CClientPairView::OnServicePaired(IClientService& service)
 
     deviceIdService->Pair([this](const auto& deviceId)
     {
-        m_Callback(deviceId);
-        m_Callback = ResolveDeviceTypeCallback{};
+        ResolveDeviceTypeCallback callback;
+        m_Callback.swap(callback);
+        callback(deviceId);
     });
 }
 

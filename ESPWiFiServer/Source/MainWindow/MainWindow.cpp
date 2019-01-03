@@ -44,7 +44,11 @@ bool CMainWindow::Initialize(unsigned short int serverPort)
     if (!m_BuildersProvider)
         return false;
 
-    BuildClientBuildersProvider(*m_BuildersProvider);
+    if (!BuildClientBuildersProvider(*m_BuildersProvider))
+    {
+        DEBUG_ASSERT(false);
+        return false;
+    }
 
     DEBUG_ASSERT(m_ServerViewWidget);
     if (!m_ServerViewWidget)
@@ -61,12 +65,33 @@ bool CMainWindow::Initialize(unsigned short int serverPort)
         return false;
     }
 
+    if (!RegistersClientsViews(*m_ServerView))
+    {
+        DEBUG_ASSERT(false);
+        return false;
+    }
+
     return (m_Initialized = true);
 }
 
 #include "Client/Builders/TransmitterBuilder.h"
 
-void CMainWindow::BuildClientBuildersProvider(IClientBuildersProvider& buildersProvider)
+bool CMainWindow::BuildClientBuildersProvider(IClientBuildersProvider& buildersProvider)
 {
-    buildersProvider.RegisterBuilder('S', std::make_unique<CTranmitterBuilder>());
+    auto result = true;
+
+    result &= buildersProvider.RegisterBuilder('S', std::make_unique<CTranmitterBuilder>());
+
+    return result;
+}
+
+#include "Client/Views/TransmitterView.h"
+
+bool CMainWindow::RegistersClientsViews(IServerView& serverView)
+{
+    auto result = true;
+
+    result &= serverView.RegisterClientViewFactory('S', std::make_unique<CClientViewFactory<CTransmitterView>>());
+
+    return result;
 }
