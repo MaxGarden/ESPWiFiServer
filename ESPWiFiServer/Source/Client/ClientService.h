@@ -17,8 +17,12 @@ class IClientService
 public:
     virtual ~IClientService() = default;
 
+    virtual bool Initialize() = 0;
+
     virtual void OnBind(const IClientServiceConnectionSharedPtr& connection) = 0;
     virtual void OnUnbind(const IClientServiceConnectionSharedPtr& connection) = 0;
+
+    virtual void Finalize() = 0;
 
     virtual void OnReceived(const std::vector<byte>& payload) = 0;
 };

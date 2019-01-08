@@ -10,8 +10,12 @@ public:
     CClientServiceBase() = default;
     virtual ~CClientServiceBase() override = default;
 
+    virtual bool Initialize() override;
+
     virtual void OnBind(const IClientServiceConnectionSharedPtr& connection) override;
     virtual void OnUnbind(const IClientServiceConnectionSharedPtr& connection) override;
+
+    virtual void Finalize() override;
 
     virtual void OnReceived(const std::vector<byte>& payload) override;
 

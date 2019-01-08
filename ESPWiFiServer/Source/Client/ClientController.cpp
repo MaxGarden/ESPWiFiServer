@@ -264,6 +264,8 @@ void CClientController::UnpairServices()
         connection.reset();
 
         NotifyListeners(&IClientControllerListener::OnServiceUnparied, *service);
+
+        service->Finalize();
     });
 
     m_PairedServices.clear();
@@ -313,6 +315,12 @@ void CClientController::OnPairResponse(const std::string& serviceName, byte serv
     DEBUG_ASSERT(service);
     if (!service)
         return;
+
+    if (!service->Initialize())
+    {
+        DEBUG_ASSERT(false);
+        return;
+    }
 
     const auto serviceRaw = service.get();
     const auto serviceConnection = std::make_shared<CClientServiceConnection>(servicePort, this);

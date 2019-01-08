@@ -3,7 +3,7 @@
 #pragma once
 
 #include "ClientViewBase.h"
-#include "Client/Services/TransmissionService.h"
+#include "Client/Services/MorseCodeTransmissionService.h"
 #include "ui_TransmitterView.h"
 
 class CTransmitterView : public CClientViewBase, public Ui::TransmitterView
@@ -22,9 +22,13 @@ protected:
 
 private slots:
     void OnTransmitButtonClicked();
+    void OnDotDurationChanged(int durationInMiliseconds);
 
 private:
-    CTransmissionService* m_TransmissionService = nullptr;
+    void RefreshView();
+
+private:
+    CMorseCodeTransmissionService* m_TransmissionService = nullptr;
 };
 
 #endif //__TRANSMITTER_VIEW__

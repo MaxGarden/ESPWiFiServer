@@ -1,6 +1,12 @@
 #include "pch.h"
 #include "ClientServiceBase.h"
 
+bool CClientServiceBase::Initialize()
+{
+    //to override
+    return true;
+}
+
 void CClientServiceBase::OnBind(const IClientServiceConnectionSharedPtr& connection)
 {
     DEBUG_ASSERT(!m_Connection);
@@ -15,6 +21,11 @@ void CClientServiceBase::OnUnbind(const IClientServiceConnectionSharedPtr& conne
     DEBUG_ASSERT(m_Connection == connection);
     if (m_Connection == connection)
         m_Connection.reset();
+}
+
+void CClientServiceBase::Finalize()
+{
+    //to override
 }
 
 void CClientServiceBase::OnReceived(const std::vector<byte>&)

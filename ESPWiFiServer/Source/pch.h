@@ -8,6 +8,7 @@
 #include <optional>
 #include <functional>
 #include <set>
+#include <queue>
 
 #include "Utilities.h"
 

@@ -36,13 +36,14 @@ SOURCES += \
     Source/Client/ClientPairView.cpp                                                \
     Source/Client/ClientBuilder.cpp                                                 \
     Source/Client/ClientService.cpp                                                 \
-    Source/Client/Services/ClientServiceBase.cpp                                    \      
-    Source/Client/Services/DeviceIdService.cpp                                      \      
-    Source/Client/Services/TransmissionService.cpp                                  \
     Source/Client/Builders/ClientBuilderBase.cpp                                    \
     Source/Client/Builders/TransmitterBuilder.cpp                                   \
     Source/Client/Views/ClientViewBase.cpp                                          \
     Source/Client/Views/TransmitterView.cpp                                         \
+    Source/Client/Services/ClientServiceBase.cpp                                    \      
+    Source/Client/Services/DeviceIdService.cpp                                      \      
+    Source/Client/Services/BinaryTransmissionService.cpp                            \      
+    Source/Client/Services/MorseCodeTransmissionService.cpp                         \
 
 HEADERS += \
     Source/Pointers.h                                                               \
@@ -74,16 +75,22 @@ HEADERS += \
     Source/Client/ClientPairView.h                                                  \
     Source/Client/ClientBuilder.h                                                   \
     Source/Client/ClientService.h                                                   \
-    Source/Client/Services/ClientServiceBase.h                                      \      
-    Source/Client/Services/DeviceIdService.h                                        \      
-    Source/Client/Services/TransmissionService.h                                    \
     Source/Client/Builders/ClientBuilderBase.h                                      \
     Source/Client/Builders/TransmitterBuilder.h                                     \
     Source/Client/Views/ClientViewBase.h                                            \
     Source/Client/Views/TransmitterView.h                                           \
+    Source/Client/Services/ClientServiceBase.h                                      \      
+    Source/Client/Services/DeviceIdService.h                                        \      
+    Source/Client/Services/BinaryTransmissionService.h                              \      
+    Source/Client/Services/MorseCodeTransmissionService.h                           \
     
 
 FORMS += \
     Source/MainWindow/UI/MainWindow.ui                                              \
     Source/Server/UI/ServerView.ui                                                  \
     Source/Client/Views/UI/TransmitterView.ui                                       \
+    
+CopyData.commands = $$quote(cmd /c xcopy /Y /S /I Data $${BINDIR})
+
+QMAKE_EXTRA_TARGETS += CopyData
+POST_TARGETDEPS += CopyData
