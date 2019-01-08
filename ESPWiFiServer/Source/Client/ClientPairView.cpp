@@ -17,12 +17,13 @@ private:
     CClientPairView& m_ClientPairView;
 };
 
-class CClientPairView final : public CViewBase<IClientPairView, IClientController>
+class CClientPairView final : public CViewBase<IClientPairView, IClientController>, public QWidget
 {
 public:
     CClientPairView(const IClientBuildersProvider& buildersProvider, QWidget* parent = nullptr);
     virtual ~CClientPairView() override final = default;
 
+    virtual QWidget* GetViewWidget() noexcept override final;
     virtual const std::string& GetName() const noexcept override final;
 
     virtual bool ResolveDeviceType(ResolveDeviceTypeCallback&& callback) override final;
@@ -52,6 +53,11 @@ CClientPairView::CClientPairView(const IClientBuildersProvider& buildersProvider
     m_BuildersProvider(buildersProvider),
     QWidget(parent)
 {
+}
+
+QWidget* CClientPairView::GetViewWidget() noexcept
+{
+    return this;
 }
 
 const std::string& CClientPairView::GetName() const noexcept

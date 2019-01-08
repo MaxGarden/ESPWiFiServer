@@ -21,12 +21,14 @@ private:
     CClientViewBase & m_ClientView;
 };
 
-class CClientViewBase : public CViewBase<IClientView, IClientController>
+class CClientViewBase : public CViewBase<IClientView, IClientController>, public QWidget
 {
     friend CClientViewBaseListener;
 public:
+    CClientViewBase(QWidget* parent = nullptr);
     virtual ~CClientViewBase() override = default;
 
+    virtual QWidget* GetViewWidget() noexcept override final;
     virtual const std::string& GetName() const noexcept override;
 
 protected:

@@ -5,11 +5,12 @@
 #include "View.h"
 #include <QWidget>
 
-class IClientView : public IView, public virtual QWidget
+class IClientView : public IView
 {
 public:
     virtual ~IClientView() override = default;
 
+    virtual QWidget* GetViewWidget() noexcept = 0;
     virtual const std::string& GetName() const noexcept = 0;
 };
 

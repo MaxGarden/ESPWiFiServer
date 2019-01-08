@@ -16,6 +16,17 @@ void CClientViewBaseListener::OnServiceUnparied(IClientService& service)
     m_ClientView.OnServiceUnpaired(service);
 }
 
+CClientViewBase::CClientViewBase(QWidget* parent /*= nullptr*/) :
+    QWidget(parent)
+{
+
+}
+
+QWidget* CClientViewBase::GetViewWidget() noexcept
+{
+    return this;
+}
+
 const std::string& CClientViewBase::GetName() const noexcept
 {
     static const std::string name = "UNDEFINED";

@@ -86,3 +86,4 @@ HEADERS += \
 FORMS += \
     Source/MainWindow/UI/MainWindow.ui                                              \
     Source/Server/UI/ServerView.ui                                                  \
+    Source/Client/Views/UI/TransmitterView.ui                                       \

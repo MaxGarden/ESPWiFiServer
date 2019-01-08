@@ -4,10 +4,11 @@
 
 #include "ClientViewBase.h"
 #include "Client/Services/TransmissionService.h"
+#include "ui_TransmitterView.h"
 
-class CTransmitterView : public CClientViewBase
+class CTransmitterView : public CClientViewBase, public Ui::TransmitterView
 {
-    Q_OBJECT;
+    Q_OBJECT
 
 public:
     CTransmitterView(QWidget* parent = nullptr);
@@ -18,6 +19,9 @@ public:
 protected:
     virtual void OnServicePaired(IClientService& service) override final;
     virtual void OnServiceUnpaired(IClientService& service) override final;
+
+private slots:
+    void OnTransmitButtonClicked();
 
 private:
     CTransmissionService* m_TransmissionService = nullptr;

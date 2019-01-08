@@ -92,7 +92,13 @@ void CServerViewImplementation::OnClientDisconnected(const IClientControllerShar
 
     DEBUG_ASSERT(m_ClientsViewTabWidget);
     if (m_ClientsViewTabWidget)
-        m_ClientsViewTabWidget->removeTab(m_ClientsViewTabWidget->indexOf(clientView.get()));
+    {
+        const auto viewWidget = clientView->GetViewWidget();
+        DEBUG_ASSERT(viewWidget);
+
+        if (viewWidget)
+            m_ClientsViewTabWidget->removeTab(m_ClientsViewTabWidget->indexOf(viewWidget));
+    }
 
     m_Clients.erase(iterator);
 }
@@ -186,12 +192,16 @@ void CServerViewImplementation::AddClientViewTab(const IClientControllerSharedPt
     if (!clientView)
         return;
 
-    const auto clientViewRaw = clientView.get();
+    const auto clientViewWidget = clientView->GetViewWidget();
+    DEBUG_ASSERT(clientViewWidget);
+
+    const auto clientTabName = QString::fromStdString(clientView->GetName());
 
     m_Clients.emplace(clientController, std::move(clientView));
     DEBUG_ASSERT(m_ClientsViewTabWidget);
-    if (m_ClientsViewTabWidget)
-        m_ClientsViewTabWidget->addTab(clientViewRaw, QString::fromStdString(clientViewRaw->GetName()));
+    if (m_ClientsViewTabWidget && clientViewWidget)
+        m_ClientsViewTabWidget->addTab(clientViewWidget, clientTabName);
+
 }
 
 IServerViewUniquePtr IServerView::Create(const IClientBuildersProvider& buildersProvider, QWidget* parent /* = nullptr */)

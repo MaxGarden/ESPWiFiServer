@@ -2,8 +2,9 @@
 #include "TransmitterView.h"
 
 CTransmitterView::CTransmitterView(QWidget* parent /*= nullptr*/) :
-    QWidget(parent)
+    CClientViewBase(parent)
 {
+    setupUi(this);
 }
 
 const std::string& CTransmitterView::GetName() const noexcept
@@ -18,8 +19,6 @@ void CTransmitterView::OnServicePaired(IClientService& service)
     {
         DEBUG_ASSERT(!m_TransmissionService);
         m_TransmissionService = transmissionService;
-
-        m_TransmissionService->TransmitHighState(2500);
     }
 }
 
@@ -27,4 +26,10 @@ void CTransmitterView::OnServiceUnpaired(IClientService& service)
 {
     if (m_TransmissionService == &service)
         m_TransmissionService = nullptr;
+}
+
+void CTransmitterView::OnTransmitButtonClicked()
+{
+    if (m_TransmissionService)
+        m_TransmissionService->TransmitHighState(500);
 }
