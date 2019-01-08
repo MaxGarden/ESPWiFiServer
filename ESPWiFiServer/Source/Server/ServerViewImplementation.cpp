@@ -201,7 +201,6 @@ void CServerViewImplementation::AddClientViewTab(const IClientControllerSharedPt
     DEBUG_ASSERT(m_ClientsViewTabWidget);
     if (m_ClientsViewTabWidget && clientViewWidget)
         m_ClientsViewTabWidget->addTab(clientViewWidget, clientTabName);
-
 }
 
 IServerViewUniquePtr IServerView::Create(const IClientBuildersProvider& buildersProvider, QWidget* parent /* = nullptr */)

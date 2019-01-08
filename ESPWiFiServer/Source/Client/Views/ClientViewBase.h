@@ -18,7 +18,7 @@ public:
     virtual void OnServiceUnparied(IClientService& service) override final;
 
 private:
-    CClientViewBase & m_ClientView;
+    CClientViewBase& m_ClientView;
 };
 
 class CClientViewBase : public CViewBase<IClientView, IClientController>, public QWidget

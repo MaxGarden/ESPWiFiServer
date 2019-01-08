@@ -19,7 +19,7 @@ public:
     virtual void OnDisconnected() override final;
 
 private:
-    CClientController & m_Controller;
+    CClientController& m_Controller;
 };
 
 class CClientServiceConnection final : public IClientServiceConnection
