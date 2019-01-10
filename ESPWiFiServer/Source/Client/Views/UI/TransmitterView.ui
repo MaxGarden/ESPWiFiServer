@@ -20,7 +20,7 @@
       <bool>false</bool>
      </property>
      <property name="title">
-      <string>Transmission</string>
+      <string>Settings</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_3">
       <item>
@@ -60,7 +60,7 @@
        </layout>
       </item>
       <item>
-       <widget class="QPushButton" name="m_TransmitButton">
+       <widget class="QPushButton" name="m_TransmitPushButton">
         <property name="text">
          <string>Transmit</string>
         </property>
@@ -69,12 +69,22 @@
      </layout>
     </widget>
    </item>
+   <item>
+    <widget class="QPushButton" name="m_AbortPushButton">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="text">
+      <string>Abort</string>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>m_TransmitButton</sender>
+   <sender>m_TransmitPushButton</sender>
    <signal>clicked()</signal>
    <receiver>TransmitterView</receiver>
    <slot>OnTransmitButtonClicked()</slot>
@@ -105,9 +115,26 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>m_AbortPushButton</sender>
+   <signal>clicked()</signal>
+   <receiver>TransmitterView</receiver>
+   <slot>OnAbortButtonClicked()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>199</x>
+     <y>269</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnTransmitButtonClicked()</slot>
   <slot>OnDotDurationChanged(int)</slot>
+  <slot>OnAbortButtonClicked()</slot>
  </slots>
 </ui>

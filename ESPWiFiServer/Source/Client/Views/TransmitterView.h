@@ -22,6 +22,7 @@ protected:
 
 private slots:
     void OnTransmitButtonClicked();
+    void OnAbortButtonClicked();
     void OnDotDurationChanged(int durationInMiliseconds);
 
 private:

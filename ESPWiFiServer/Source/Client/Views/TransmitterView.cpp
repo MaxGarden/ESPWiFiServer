@@ -40,6 +40,11 @@ void CTransmitterView::OnTransmitButtonClicked()
     if (!m_TransmissionService)
         return RefreshView();
 
+    const auto isTransmitting = m_TransmissionService->IsTransmitting();
+    DEBUG_ASSERT(!isTransmitting);
+    if (isTransmitting)
+        return;
+
     const auto textToTransmit = [this]()
     {
         if (m_TextToTransmitTextEdit)
@@ -77,13 +82,34 @@ void CTransmitterView::OnTransmitButtonClicked()
     if(m_TransmissionGroupBox)
         m_TransmissionGroupBox->setEnabled(false);
 
+    if (m_AbortPushButton)
+        m_AbortPushButton->setEnabled(true);
+
     m_TransmissionService->TransmitText(textToTransmit, [this]()
     {
         QMessageBox::information(this, tr("Information"), tr("Transmission done."));
 
         if (m_TransmissionGroupBox)
             m_TransmissionGroupBox->setEnabled(true);
+
+        if (m_AbortPushButton)
+            m_AbortPushButton->setEnabled(false);
     });
+}
+
+void CTransmitterView::OnAbortButtonClicked()
+{
+    DEBUG_ASSERT(m_TransmissionService);
+    if (!m_TransmissionService)
+        return RefreshView();
+
+    const auto isTransmitting = m_TransmissionService->IsTransmitting();
+    DEBUG_ASSERT(isTransmitting);
+    if (!isTransmitting)
+        return;
+
+    const auto clearResult = m_TransmissionService->ClearQueue();
+    DEBUG_ASSERT(clearResult);
 }
 
 void CTransmitterView::OnDotDurationChanged(int durationInMiliseconds)
