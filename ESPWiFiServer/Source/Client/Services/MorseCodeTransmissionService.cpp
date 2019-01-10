@@ -15,7 +15,7 @@ bool CMorseCodeTransmissionService::Initialize()
 void CMorseCodeTransmissionService::Finalize()
 {
     if (IsTransmitting())
-        OnFinishedTransmitting();
+        OnTransmissionEnded(false);
 
     CBinaryTransmissionService::Finalize();
 }
@@ -36,25 +36,19 @@ bool CMorseCodeTransmissionService::CheckText(const std::string& text) const noe
     return true;
 }
 
-bool CMorseCodeTransmissionService::TransmitText(const std::string& text, TransmissionFinishedCallback&& callback)
+bool CMorseCodeTransmissionService::TransmitText(std::string&& text, TransmissionFinishedCallback&& callback)
 {
-    if (IsTransmitting() || m_Callback || !CheckText(text))
+    if (!m_TextToTransmission.empty() || IsTransmitting() || m_Callback || !CheckText(text))
     {
         DEBUG_ASSERT(false);
         return false;
     }
 
     m_Callback = callback;
+    m_TextToTransmission = std::move(text);
+    m_TextToTransmissionOffset = 0;
 
-    for (const auto character : text)
-    {
-        if (!TransmitCharacter(character))
-        {
-            DEBUG_ASSERT(false);
-            return false;
-        }
-    }
-
+    OnTransmissionEnded(true);
     return true;
 }
 
@@ -68,15 +62,45 @@ unsigned int CMorseCodeTransmissionService::GetDotDuration() const noexcept
     return m_DotDurationInMiliSeconds;
 }
 
-void CMorseCodeTransmissionService::OnFinishedTransmitting()
+void CMorseCodeTransmissionService::OnTransmissionEnded(bool success)
 {
-    DEBUG_ASSERT(m_Callback);
-    if (!m_Callback)
-        return;
+    const auto transmissionResult = [this](auto result)
+    {
+        DEBUG_ASSERT(m_Callback);
+        if (!m_Callback)
+            return;
 
-    TransmissionFinishedCallback callback;
-    m_Callback.swap(callback);
-    callback();
+        m_TextToTransmission.clear();
+        m_TextToTransmissionOffset = 0u;
+
+        TransmissionFinishedCallback callback;
+        m_Callback.swap(callback);
+        callback(result);
+    };
+
+    if (!success || m_TextToTransmissionOffset >= m_TextToTransmission.size())
+        return transmissionResult(success);
+
+    if (!BeginTransaction())
+    {
+        DEBUG_ASSERT(false);
+        return transmissionResult(false);
+    }
+
+    for (auto length = 0u; m_TextToTransmissionOffset < m_TextToTransmission.size() && length < s_MaxLettersNumberInOneTransmissionChunk; ++m_TextToTransmissionOffset, ++length)
+    {
+        if (!TransmitCharacter(m_TextToTransmission[m_TextToTransmissionOffset]))
+        {
+            DEBUG_ASSERT(false);
+            return transmissionResult(false);
+        }
+    }
+
+    if (!EndTransaction())
+    {
+        DEBUG_ASSERT(false);
+        transmissionResult(false);
+    }
 }
 
 bool CMorseCodeTransmissionService::LoadDictionary(const std::string& filename)
@@ -122,8 +146,11 @@ bool CMorseCodeTransmissionService::LoadDictionary(const std::string& filename)
             }
 
             morseLetter.emplace_back(*state);
-            morseLetter.emplace_back(EMorseCodeState::Space);
+            morseLetter.emplace_back(EMorseCodeState::StateSpace);
         }
+
+        if (!morseLetter.empty() && morseLetter.back() == EMorseCodeState::StateSpace)
+            morseLetter.back() = EMorseCodeState::CharacterSpace;
 
         m_MorseDictionary.emplace(character, std::move(morseLetter));
         return true;
@@ -179,8 +206,10 @@ bool CMorseCodeTransmissionService::TransmitMorseCodeState(EMorseCodeState state
         return TransmitHighState(m_DotDurationInMiliSeconds);
     case EMorseCodeState::Dash:
         return TransmitHighState(s_DashDurationToDotMultiplier * m_DotDurationInMiliSeconds);
-    case EMorseCodeState::Space:
+    case EMorseCodeState::StateSpace:
         return TransmitLowState(m_DotDurationInMiliSeconds);
+    case EMorseCodeState::CharacterSpace:
+        return TransmitLowState(s_CharacterSpaceToStateSpaceMultipiler * m_DotDurationInMiliSeconds);
     default:
         DEBUG_ASSERT(false);
         return false;

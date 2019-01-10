@@ -10,26 +10,31 @@ public:
     CBinaryTransmissionService() = default;
     virtual ~CBinaryTransmissionService() override = default;
 
+    bool BeginTransaction();
+    bool EndTransaction();
+
     bool TransmitHighState(unsigned short int durationInMs);
     bool TransmitLowState(unsigned short int durationInMs);
     bool ClearQueue();
-
     bool IsTransmitting() const noexcept;
 
     virtual void OnReceived(const std::vector<byte>& payload) override final;
 
 protected:
-    virtual void OnFinishedTransmitting();
+    virtual void OnTransmissionEnded(bool success);
 
 private:
     bool TransmitCommand(byte type, unsigned short int argument);
 
 private:
     bool m_IsWaitingForResponse = false;
+    bool m_IsTransactionBegun = false;
+    std::vector<byte> m_TransactionData;
 
     static const byte s_HighStateTypeCommand = 'a';
     static const byte s_LowStateTypeCommand = 'n';
     static const byte s_ClearQueueCommand = 'c';
+    static const byte s_FinishedTransmittingCommand = 'f';
 };
 
 #endif //__BINARY_TRANSMISSION_SERVICE_H__

@@ -8,13 +8,14 @@ enum class EMorseCodeState
 {
     Dot,
     Dash,
-    Space
+    StateSpace,
+    CharacterSpace
 };
 
 class CMorseCodeTransmissionService final : public CBinaryTransmissionService
 {
 public:
-    using TransmissionFinishedCallback = std::function<void()>;
+    using TransmissionFinishedCallback = std::function<void(bool)>;
 
 public:
     CMorseCodeTransmissionService() = default;
@@ -26,13 +27,13 @@ public:
     bool CheckCharacter(char character) const noexcept;
     bool CheckText(const std::string& text) const noexcept;
 
-    bool TransmitText(const std::string& text, TransmissionFinishedCallback&& callback);
+    bool TransmitText(std::string&& text, TransmissionFinishedCallback&& callback);
 
     void SetDotDuration(unsigned int durationInMiliseconds) noexcept;
     unsigned int GetDotDuration() const noexcept;
 
 protected:
-    virtual void OnFinishedTransmitting() override final;
+    virtual void OnTransmissionEnded(bool success) override final;
 
 private:
     bool LoadDictionary(const std::string& filename);
@@ -42,14 +43,20 @@ private:
 private:
     using MorseLetter = std::vector<EMorseCodeState>;
 
+    size_t m_TextToTransmissionOffset = 0;
+    std::string m_TextToTransmission;
+
     std::unordered_map<char, const MorseLetter> m_MorseDictionary;
-    unsigned int m_DotDurationInMiliSeconds = 500u;
+    unsigned int m_DotDurationInMiliSeconds = 100u;
 
     TransmissionFinishedCallback m_Callback;
 
     static const auto s_DashDurationToDotMultiplier = 3u;
+    static const auto s_CharacterSpaceToStateSpaceMultipiler = 3u;
     static const auto s_DotCharacter = '.';
     static const auto s_DashCharacter = '-';
+
+    static const auto s_MaxLettersNumberInOneTransmissionChunk = 32;
 };
 
 #endif //__MORSE_CODE_TRANSMISSION_SERVICE_H__

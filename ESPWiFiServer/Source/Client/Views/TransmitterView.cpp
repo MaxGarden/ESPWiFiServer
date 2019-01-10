@@ -45,7 +45,7 @@ void CTransmitterView::OnTransmitButtonClicked()
     if (isTransmitting)
         return;
 
-    const auto textToTransmit = [this]()
+    auto textToTransmit = [this]()
     {
         if (m_TextToTransmitTextEdit)
             return m_TextToTransmitTextEdit->toPlainText().toUtf8().toStdString();
@@ -85,15 +85,17 @@ void CTransmitterView::OnTransmitButtonClicked()
     if (m_AbortPushButton)
         m_AbortPushButton->setEnabled(true);
 
-    m_TransmissionService->TransmitText(textToTransmit, [this]()
+    m_TransmissionService->TransmitText(std::move(textToTransmit), [this](auto success)
     {
-        QMessageBox::information(this, tr("Information"), tr("Transmission done."));
-
-        if (m_TransmissionGroupBox)
-            m_TransmissionGroupBox->setEnabled(true);
+        if (success)
+            QMessageBox::information(this, tr("Information"), tr("Transmission done."));
+        else
+            QMessageBox::warning(this, tr("Warning"), tr("Transmission was aborted."));
 
         if (m_AbortPushButton)
             m_AbortPushButton->setEnabled(false);
+
+        RefreshView();
     });
 }
 

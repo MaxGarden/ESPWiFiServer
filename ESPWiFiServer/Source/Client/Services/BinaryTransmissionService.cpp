@@ -1,6 +1,46 @@
 #include "pch.h"
 #include "BinaryTransmissionService.h"
 
+bool CBinaryTransmissionService::BeginTransaction()
+{
+    DEBUG_ASSERT(!m_IsTransactionBegun);
+    if (m_IsTransactionBegun)
+        return false;
+
+    DEBUG_ASSERT(m_TransactionData.empty());
+    if (!m_TransactionData.empty())
+        m_TransactionData.clear();
+
+    return (m_IsTransactionBegun = true);
+}
+
+bool CBinaryTransmissionService::EndTransaction()
+{
+    CScopedGuard scopedGuard{ [this]()
+    {
+        m_TransactionData.clear();
+        m_IsTransactionBegun = false;
+    } };
+
+    DEBUG_ASSERT(m_IsTransactionBegun);
+    if (!m_IsTransactionBegun)
+        return false;
+
+    const auto& connection = GetConnection();
+    DEBUG_ASSERT(connection);
+    if (!connection)
+        return false;
+
+    if (!connection->Send(std::move(m_TransactionData)))
+    {
+        DEBUG_ASSERT(false);
+        m_IsWaitingForResponse = false;
+        return false;
+    }
+
+    return true;
+}
+
 bool CBinaryTransmissionService::TransmitHighState(unsigned short int durationInMs)
 {
     return TransmitCommand(s_HighStateTypeCommand, durationInMs);
@@ -32,33 +72,45 @@ void CBinaryTransmissionService::OnReceived(const std::vector<byte>& payload)
         return;
 
     const auto command = payload.front();
-    DEBUG_ASSERT(command == s_ClearQueueCommand);
-    if (command != s_ClearQueueCommand)
+    const auto isFinishedSuccessful = command == s_FinishedTransmittingCommand;
+    const auto isValidCommand = isFinishedSuccessful || command == s_ClearQueueCommand;
+
+    DEBUG_ASSERT(isValidCommand);
+    if (!isValidCommand)
         return;
 
     m_IsWaitingForResponse = false;
-    OnFinishedTransmitting();
+    OnTransmissionEnded(isFinishedSuccessful);
 }
 
-void CBinaryTransmissionService::OnFinishedTransmitting()
+void CBinaryTransmissionService::OnTransmissionEnded(bool)
 {
     //to override
 }
 
 bool CBinaryTransmissionService::TransmitCommand(byte type, unsigned short int argument)
 {
+    const std::array<byte, 3> dataToSend = { type, static_cast<byte>(argument), static_cast<byte>(argument >> 8) };
+
+    if (m_IsTransactionBegun)
+    {
+        for (auto currentByte : dataToSend)
+            m_TransactionData.emplace_back(currentByte);
+
+        return (m_IsWaitingForResponse = true);
+    }
+
     const auto& connection = GetConnection();
     DEBUG_ASSERT(connection);
     if (!connection)
         return false;
 
-    const auto result = connection->Send({ type, static_cast<byte>(argument), static_cast<byte>(argument >> 8) });
+    const auto result = connection->Send({ dataToSend[0], dataToSend[1], dataToSend[2] });
     if (!result)
     {
         DEBUG_ASSERT(false);
         return false;
     }
 
-    m_IsWaitingForResponse = true;
-    return true;
+    return (m_IsWaitingForResponse = true);
 }
