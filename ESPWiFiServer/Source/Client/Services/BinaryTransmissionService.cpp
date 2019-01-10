@@ -16,32 +16,31 @@ bool CBinaryTransmissionService::ClearQueue()
     return TransmitCommand(s_ClearQueueCommand, 0);
 }
 
+bool CBinaryTransmissionService::IsTransmitting() const noexcept
+{
+    return m_IsWaitingForResponse;
+}
+
 void CBinaryTransmissionService::OnReceived(const std::vector<byte>& payload)
 {
     DEBUG_ASSERT(!payload.empty());
     if (payload.empty())
         return;
 
-    DEBUG_ASSERT(!m_SentCommands.empty());
-    if (m_SentCommands.empty())
+    DEBUG_ASSERT(m_IsWaitingForResponse);
+    if (!m_IsWaitingForResponse)
         return;
 
     const auto command = payload.front();
-    if (command != m_SentCommands.front())
-    {
-        DEBUG_ASSERT(false);
+    DEBUG_ASSERT(command == s_ClearQueueCommand);
+    if (command != s_ClearQueueCommand)
         return;
-    }
 
-    m_SentCommands.pop();
-
-    if (command == s_ClearQueueCommand)
-        m_SentCommands = std::queue<byte>{};
-
-    OnFinishedCommand(command == s_ClearQueueCommand);
+    m_IsWaitingForResponse = false;
+    OnFinishedTransmitting();
 }
 
-void CBinaryTransmissionService::OnFinishedCommand(bool)
+void CBinaryTransmissionService::OnFinishedTransmitting()
 {
     //to override
 }
@@ -60,6 +59,6 @@ bool CBinaryTransmissionService::TransmitCommand(byte type, unsigned short int a
         return false;
     }
 
-    m_SentCommands.emplace(type);
+    m_IsWaitingForResponse = true;
     return true;
 }

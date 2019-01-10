@@ -77,12 +77,9 @@ void CTransmitterView::OnTransmitButtonClicked()
     if(m_TransmissionGroupBox)
         m_TransmissionGroupBox->setEnabled(false);
 
-    m_TransmissionService->TransmitText(textToTransmit, [this](auto wholeTransmission)
+    m_TransmissionService->TransmitText(textToTransmit, [this]()
     {
-        if (wholeTransmission)
-            QMessageBox::information(this, tr("Information"), tr("Transmission done."));
-        else
-            QMessageBox::warning(this, tr("Warning"), tr("Transmission aborted."));
+        QMessageBox::information(this, tr("Information"), tr("Transmission done."));
 
         if (m_TransmissionGroupBox)
             m_TransmissionGroupBox->setEnabled(true);

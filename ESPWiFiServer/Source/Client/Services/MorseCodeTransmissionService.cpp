@@ -15,7 +15,7 @@ bool CMorseCodeTransmissionService::Initialize()
 void CMorseCodeTransmissionService::Finalize()
 {
     if (IsTransmitting())
-        OnFinishedCommand(true);
+        OnFinishedTransmitting();
 
     CBinaryTransmissionService::Finalize();
 }
@@ -46,8 +46,6 @@ bool CMorseCodeTransmissionService::TransmitText(const std::string& text, Transm
 
     m_Callback = callback;
 
-    ++m_TransmissionCounter;
-
     for (const auto character : text)
     {
         if (!TransmitCharacter(character))
@@ -56,8 +54,6 @@ bool CMorseCodeTransmissionService::TransmitText(const std::string& text, Transm
             return false;
         }
     }
-
-    OnFinishedCommand(false);
 
     return true;
 }
@@ -72,37 +68,15 @@ unsigned int CMorseCodeTransmissionService::GetDotDuration() const noexcept
     return m_DotDurationInMiliSeconds;
 }
 
-bool CMorseCodeTransmissionService::IsTransmitting() const noexcept
+void CMorseCodeTransmissionService::OnFinishedTransmitting()
 {
-    return m_TransmissionCounter > 0;
-}
-
-void CMorseCodeTransmissionService::OnFinishedCommand(bool clear)
-{
-    const auto safeInvokeCallback = [this](bool wholeTransmission)
-    {
-        DEBUG_ASSERT(m_Callback);
-        if (!m_Callback)
-            return;
-
-        TransmissionFinishedCallback callback;
-        m_Callback.swap(callback);
-        callback(wholeTransmission);
-    };
-
-    if (clear)
-    {
-        m_TransmissionCounter = 0;
-        safeInvokeCallback(false);
-        return;
-    }
-
-    DEBUG_ASSERT(m_TransmissionCounter > 0);
-    if (m_TransmissionCounter <= 0)
+    DEBUG_ASSERT(m_Callback);
+    if (!m_Callback)
         return;
 
-    if (--m_TransmissionCounter == 0)
-        safeInvokeCallback(true);
+    TransmissionFinishedCallback callback;
+    m_Callback.swap(callback);
+    callback();
 }
 
 bool CMorseCodeTransmissionService::LoadDictionary(const std::string& filename)
@@ -199,7 +173,6 @@ bool CMorseCodeTransmissionService::TransmitCharacter(char character)
 
 bool CMorseCodeTransmissionService::TransmitMorseCodeState(EMorseCodeState state)
 {
-    ++m_TransmissionCounter;
     switch (state)
     {
     case EMorseCodeState::Dot:
@@ -209,7 +182,6 @@ bool CMorseCodeTransmissionService::TransmitMorseCodeState(EMorseCodeState state
     case EMorseCodeState::Space:
         return TransmitLowState(m_DotDurationInMiliSeconds);
     default:
-        --m_TransmissionCounter;
         DEBUG_ASSERT(false);
         return false;
     }

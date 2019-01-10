@@ -14,16 +14,18 @@ public:
     bool TransmitLowState(unsigned short int durationInMs);
     bool ClearQueue();
 
+    bool IsTransmitting() const noexcept;
+
     virtual void OnReceived(const std::vector<byte>& payload) override final;
 
 protected:
-    virtual void OnFinishedCommand(bool clear);
+    virtual void OnFinishedTransmitting();
 
 private:
     bool TransmitCommand(byte type, unsigned short int argument);
 
 private:
-    std::queue<byte> m_SentCommands;
+    bool m_IsWaitingForResponse = false;
 
     static const byte s_HighStateTypeCommand = 'a';
     static const byte s_LowStateTypeCommand = 'n';

@@ -14,7 +14,7 @@ enum class EMorseCodeState
 class CMorseCodeTransmissionService final : public CBinaryTransmissionService
 {
 public:
-    using TransmissionFinishedCallback = std::function<void(bool)>;
+    using TransmissionFinishedCallback = std::function<void()>;
 
 public:
     CMorseCodeTransmissionService() = default;
@@ -31,10 +31,8 @@ public:
     void SetDotDuration(unsigned int durationInMiliseconds) noexcept;
     unsigned int GetDotDuration() const noexcept;
 
-    bool IsTransmitting() const noexcept;
-
 protected:
-    virtual void OnFinishedCommand(bool clear) override final;
+    virtual void OnFinishedTransmitting() override final;
 
 private:
     bool LoadDictionary(const std::string& filename);
@@ -47,7 +45,6 @@ private:
     std::unordered_map<char, const MorseLetter> m_MorseDictionary;
     unsigned int m_DotDurationInMiliSeconds = 500u;
 
-    unsigned int m_TransmissionCounter = 0u;
     TransmissionFinishedCallback m_Callback;
 
     static const auto s_DashDurationToDotMultiplier = 3u;

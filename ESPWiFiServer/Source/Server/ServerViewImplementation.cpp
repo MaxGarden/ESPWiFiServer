@@ -37,6 +37,8 @@ CServerViewImplementation::CServerViewImplementation(const IClientBuildersProvid
     QWidget(parent)
 {
     setupUi(this);
+    if (m_ClientsViewTabWidget)
+        m_ClientsViewTabWidget->clear();
 }
 
 bool CServerViewImplementation::RegisterClientViewFactory(byte deviceId, IClientViewFactoryUniquePtr&& factory)
@@ -172,7 +174,7 @@ void CServerViewImplementation::CreateClientView(IClientControllerSharedPtr clie
     if (!factory)
         return fail();
 
-    auto clientView = factory->Create();
+    auto clientView = factory->Create(this);
     if (!clientView)
         return fail();
 
