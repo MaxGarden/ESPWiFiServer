@@ -37,7 +37,7 @@ void CServerImplementation::OnNewConnection()
 {
     const auto iterator = std::remove_if(m_Clients.begin(), m_Clients.end(), [](const auto& client)
     {
-        return !client || client->IsConnected();
+        return !client || !client->IsConnected();
     });
 
     for (auto current = iterator; current != m_Clients.cend(); ++current)
