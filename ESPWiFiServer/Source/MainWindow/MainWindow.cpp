@@ -75,23 +75,27 @@ bool CMainWindow::Initialize(unsigned short int serverPort)
 }
 
 #include "Client/Builders/TransmitterBuilder.h"
+#include "Client/Builders/ReceiverBuilder.h"
 
 bool CMainWindow::BuildClientBuildersProvider(IClientBuildersProvider& buildersProvider)
 {
     auto result = true;
 
     result &= buildersProvider.RegisterBuilder('S', std::make_unique<CTranmitterBuilder>());
+    result &= buildersProvider.RegisterBuilder('R', std::make_unique<CReceiverBuilder>());
 
     return result;
 }
 
 #include "Client/Views/TransmitterView.h"
+#include "Client/Views/ReceiverView.h"
 
 bool CMainWindow::RegistersClientsViews(IServerView& serverView)
 {
     auto result = true;
 
     result &= serverView.RegisterClientViewFactory('S', std::make_unique<CClientViewFactory<CTransmitterView>>());
+    result &= serverView.RegisterClientViewFactory('R', std::make_unique<CClientViewFactory<CReceiverView>>());
 
     return result;
 }

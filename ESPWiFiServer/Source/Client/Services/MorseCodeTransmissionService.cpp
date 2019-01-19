@@ -2,7 +2,6 @@
 #include "MorseCodeTransmissionService.h"
 #include <sstream>
 #include <fstream>
-#include <windows.h>
 
 bool CMorseCodeTransmissionService::Initialize()
 {

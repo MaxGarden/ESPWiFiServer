@@ -11,6 +11,7 @@ enum class EMorseCodeState
     StateSpace,
     CharacterSpace
 };
+using MorseLetter = std::vector<EMorseCodeState>;
 
 class CMorseCodeTransmissionService final : public CBinaryTransmissionService
 {
@@ -41,8 +42,6 @@ private:
     bool TransmitMorseCodeState(EMorseCodeState state);
 
 private:
-    using MorseLetter = std::vector<EMorseCodeState>;
-
     size_t m_TextToTransmissionOffset = 0;
     std::string m_TextToTransmission;
 

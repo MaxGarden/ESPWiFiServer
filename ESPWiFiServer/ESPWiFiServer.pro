@@ -38,12 +38,17 @@ SOURCES += \
     Source/Client/ClientService.cpp                                                 \
     Source/Client/Builders/ClientBuilderBase.cpp                                    \
     Source/Client/Builders/TransmitterBuilder.cpp                                   \
+    Source/Client/Builders/ReceiverBuilder.cpp                                      \
     Source/Client/Views/ClientViewBase.cpp                                          \
     Source/Client/Views/TransmitterView.cpp                                         \
+    Source/Client/Views/ReceiverView.cpp                                            \
     Source/Client/Services/ClientServiceBase.cpp                                    \      
     Source/Client/Services/DeviceIdService.cpp                                      \      
     Source/Client/Services/BinaryTransmissionService.cpp                            \      
     Source/Client/Services/MorseCodeTransmissionService.cpp                         \
+    Source/Client/Services/SamplesReceiverService.cpp                               \
+    Source/Client/Services/SamplesToBinaryReceiverService.cpp                       \
+    Source/Client/Services/MorseCodeReceiverService.cpp                             \
 
 HEADERS += \
     Source/Pointers.h                                                               \
@@ -77,18 +82,24 @@ HEADERS += \
     Source/Client/ClientService.h                                                   \
     Source/Client/Builders/ClientBuilderBase.h                                      \
     Source/Client/Builders/TransmitterBuilder.h                                     \
+    Source/Client/Builders/ReceiverBuilder.h                                        \
     Source/Client/Views/ClientViewBase.h                                            \
     Source/Client/Views/TransmitterView.h                                           \
+    Source/Client/Views/ReceiverView.h                                              \
     Source/Client/Services/ClientServiceBase.h                                      \      
     Source/Client/Services/DeviceIdService.h                                        \      
     Source/Client/Services/BinaryTransmissionService.h                              \      
     Source/Client/Services/MorseCodeTransmissionService.h                           \
+    Source/Client/Services/SamplesReceiverService.h                                 \
+    Source/Client/Services/SamplesToBinaryReceiverService.h                         \
+    Source/Client/Services/MorseCodeReceiverService.h                               \
     
 
 FORMS += \
     Source/MainWindow/UI/MainWindow.ui                                              \
     Source/Server/UI/ServerView.ui                                                  \
     Source/Client/Views/UI/TransmitterView.ui                                       \
+    Source/Client/Views/UI/ReceiverView.ui                                          \
     
 CopyData.commands = $$quote(cmd /c xcopy /Y /S /I Data $${BINDIR})
 
