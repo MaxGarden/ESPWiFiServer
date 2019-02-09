@@ -7,7 +7,7 @@
 class CSamplesReceiverService : public CClientServiceBase
 {
 public:
-    using ReceiveCallback = std::function<void(std::optional<int>)>;
+    using ReceiveCallback = std::function<void(std::vector<int>&&)>;
 
 public:
     CSamplesReceiverService() = default;
@@ -15,8 +15,10 @@ public:
 
     virtual void Finalize() override;
 
-    bool StartReceiving(unsigned short int samplesFrequency, ReceiveCallback&& callback);
+    bool StartReceiving(unsigned short int samplesFrequency, unsigned short int sendFrequency, ReceiveCallback&& callback);
     virtual bool EndReceiving();
+
+    bool IsReceiving() const noexcept;
 
     virtual void OnReceived(const std::vector<byte>& payload) override final;
 

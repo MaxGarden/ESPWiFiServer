@@ -7,7 +7,7 @@ void CSamplesReceiverService::Finalize()
         EndReceiving();
 }
 
-bool CSamplesReceiverService::StartReceiving(unsigned short int samplesFrequency, ReceiveCallback&& callback)
+bool CSamplesReceiverService::StartReceiving(unsigned short int samplesFrequency, unsigned short int sendFrequency, ReceiveCallback&& callback)
 {
     if (m_ReceiveCallback || !callback || samplesFrequency <= 0)
     {
@@ -15,7 +15,8 @@ bool CSamplesReceiverService::StartReceiving(unsigned short int samplesFrequency
         return false;
     }
 
-    const auto sendResult = Send({ s_StartTransmissionCommand, static_cast<byte>(samplesFrequency), static_cast<byte>(samplesFrequency >> 8) });
+    const auto sendResult = Send({ s_StartTransmissionCommand, static_cast<byte>(samplesFrequency), static_cast<byte>(samplesFrequency >> 8),
+                                                               static_cast<byte>(sendFrequency), static_cast<byte>(sendFrequency >> 8) });
     DEBUG_ASSERT(sendResult);
     if (!sendResult)
         return false;
@@ -35,23 +36,27 @@ bool CSamplesReceiverService::EndReceiving()
     if (!sendResult)
         return false;
 
-    m_ReceiveCallback(std::nullopt);
+    m_ReceiveCallback({});
     m_ReceiveCallback = ReceiveCallback{};
     return true;
 }
 
+bool CSamplesReceiverService::IsReceiving() const noexcept
+{
+    return !!m_ReceiveCallback;
+}
+
 void CSamplesReceiverService::OnReceived(const std::vector<byte>& payload)
 {
-    DEBUG_ASSERT(m_ReceiveCallback);
     if (!m_ReceiveCallback)
         return;
 
-    DEBUG_ASSERT(payload.size() == 4);
-    if (payload.size() != 4)
+    const auto payloadSize = payload.size();
+    DEBUG_ASSERT(payloadSize % sizeof(int) == 0);
+    if (payloadSize % sizeof(int) != 0)
         return;
 
-    int sample;
-    memcpy(&sample, payload.data(), payload.size());
-
-    m_ReceiveCallback(sample);
+    std::vector<int> samples(payloadSize / sizeof(int));
+    memcpy(&samples[0], payload.data(), payloadSize);
+    m_ReceiveCallback(std::move(samples));
 }

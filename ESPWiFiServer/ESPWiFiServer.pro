@@ -3,7 +3,7 @@ TEMPLATE = app
 TARGET = ESPWiFiServer
 BINDIR = $$OUT_PWD/bin
 DESTDIR = $$BINDIR
-QT += core gui widgets network
+QT += core gui widgets network charts
 
 CONFIG += precompile_header suppress_vcproj_warnings
 QMAKE_CXXFLAGS += /std:c++latest
@@ -86,6 +86,8 @@ HEADERS += \
     Source/Client/Views/ClientViewBase.h                                            \
     Source/Client/Views/TransmitterView.h                                           \
     Source/Client/Views/ReceiverView.h                                              \
+    Source/Client/Views/ChartSamplesBuffer.h                                        \
+    Source/Client/Views/ChartSamplesBuffer.inl                                      \
     Source/Client/Services/ClientServiceBase.h                                      \      
     Source/Client/Services/DeviceIdService.h                                        \      
     Source/Client/Services/BinaryTransmissionService.h                              \      

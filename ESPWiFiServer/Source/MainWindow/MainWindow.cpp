@@ -81,7 +81,7 @@ bool CMainWindow::BuildClientBuildersProvider(IClientBuildersProvider& buildersP
 {
     auto result = true;
 
-    result &= buildersProvider.RegisterBuilder('S', std::make_unique<CTranmitterBuilder>());
+    result &= buildersProvider.RegisterBuilder('T', std::make_unique<CTranmitterBuilder>());
     result &= buildersProvider.RegisterBuilder('R', std::make_unique<CReceiverBuilder>());
 
     return result;
@@ -94,7 +94,7 @@ bool CMainWindow::RegistersClientsViews(IServerView& serverView)
 {
     auto result = true;
 
-    result &= serverView.RegisterClientViewFactory('S', std::make_unique<CClientViewFactory<CTransmitterView>>());
+    result &= serverView.RegisterClientViewFactory('T', std::make_unique<CClientViewFactory<CTransmitterView>>());
     result &= serverView.RegisterClientViewFactory('R', std::make_unique<CClientViewFactory<CReceiverView>>());
 
     return result;

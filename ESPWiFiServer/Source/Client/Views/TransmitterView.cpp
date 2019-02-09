@@ -79,13 +79,7 @@ void CTransmitterView::OnTransmitButtonClicked()
         return;
     }
 
-    if(m_TransmissionGroupBox)
-        m_TransmissionGroupBox->setEnabled(false);
-
-    if (m_AbortPushButton)
-        m_AbortPushButton->setEnabled(true);
-
-    m_TransmissionService->TransmitText(std::move(textToTransmit), [this](auto success)
+    const auto result = m_TransmissionService->TransmitText(std::move(textToTransmit), [this](auto success)
     {
         if (success)
             QMessageBox::information(this, tr("Information"), tr("Transmission done."));
@@ -97,6 +91,19 @@ void CTransmitterView::OnTransmitButtonClicked()
 
         RefreshView();
     });
+
+    DEBUG_ASSERT(result);
+    if (!result)
+    {
+        QMessageBox::critical(this, tr("Error"), tr("Transmission failed!"));
+        return RefreshView();
+    }
+
+    if (m_TransmissionGroupBox)
+        m_TransmissionGroupBox->setEnabled(false);
+
+    if (m_AbortPushButton)
+        m_AbortPushButton->setEnabled(true);
 }
 
 void CTransmitterView::OnAbortButtonClicked()

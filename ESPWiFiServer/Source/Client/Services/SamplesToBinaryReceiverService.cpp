@@ -9,13 +9,14 @@ bool CSamplesToBinaryReceiverService::StartReceiving(unsigned short int samplesF
         return false;
     }
 
-    const auto result = CSamplesReceiverService::StartReceiving(samplesFrequency, [this](auto sample)
+    DEBUG_ASSERT(false);
+    /*const auto result = CSamplesReceiverService::StartReceiving(samplesFrequency, [this](auto sample)
     {
         if (sample)
             OnReceivedSample(*sample);
-    });
+    });*/
 
-    if (!result)
+    //if (!result)
         return false;
 
     m_SampleDuration = 1.0 / samplesFrequency;
