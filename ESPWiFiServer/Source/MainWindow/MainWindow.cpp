@@ -59,6 +59,8 @@ bool CMainWindow::Initialize(unsigned short int serverPort)
     if (!m_ServerView)
         return false;
 
+    setCentralWidget(m_ServerView.get());
+
     if (!m_ServerView->SetController(m_ServerController))
     {
         DEBUG_ASSERT(false);

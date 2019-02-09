@@ -39,7 +39,7 @@ bool CSamplesToBinaryReceiverService::EndReceiving()
         return false;
 
     m_ReceiveCallback(std::vector<StateType>{});
-    m_ReceiveCallback = ReceiveCallback();
+    m_ReceiveCallback = ReceiveCallback{};
     return true;
 }
 

@@ -16,12 +16,12 @@ public:
 
     virtual bool Initialize() override final;
 
-    bool StartReceiving(unsigned short int samplesFrequency, int binaryTreshold, unsigned short int dotDurationInMiliseconds, ReceiveCallback&& callback);
+    bool StartReceiving(unsigned short int samplesFrequency, unsigned short int sendFrequency, SampleType binaryTreshold, unsigned short int binarySamplingFrequency, unsigned short int dotDurationInMiliseconds, ReceiveCallback&& morseCallback, CSamplesToBinaryReceiverService::ReceiveCallback&& binaryCallback = CSamplesToBinaryReceiverService::ReceiveCallback{}, CSamplesReceiverService::ReceiveCallback&& samplesCallback = CSamplesReceiverService::ReceiveCallback{});
     virtual bool EndReceiving() override final;
 
 private:
     bool LoadDictionary(const std::string& filename);
-    void OnReceivedState(bool state, unsigned short int stateDuration);
+    void OnReceivedStates(const std::vector<StateType>& states);
 
     std::optional<EMorseCodeState> DecodeMorseCodeState(bool state, unsigned short int stateDuration);
 

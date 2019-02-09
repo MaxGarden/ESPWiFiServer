@@ -17,7 +17,7 @@ const std::string& CReceiverView::GetName() const noexcept
 
 void CReceiverView::OnServicePaired(IClientService& service)
 {
-    if (const auto receiverService = dynamic_cast<CSamplesToBinaryReceiverService*>(&service))
+    if (const auto receiverService = dynamic_cast<CMorseCodeReceiverService*>(&service))
     {
         DEBUG_ASSERT(!m_ReceiverService);
         m_ReceiverService = receiverService;
@@ -101,6 +101,16 @@ void CReceiverView::AddBinarySamplesToChart(std::vector<CMorseCodeReceiverServic
         m_BinarySeriesBuffer->Write(state.first ? 1 : 0, state.second * m_BinarySeriesBuffer->GetSamplesCount());
 }
 
+void CReceiverView::AddCharacterToOutput(char character)
+{
+    if (!m_OutputTextEdit)
+        return;
+
+    m_OutputTextEdit->moveCursor(QTextCursor::End);
+    m_OutputTextEdit->insertPlainText(QString{ character });
+    m_OutputTextEdit->moveCursor(QTextCursor::End);
+}
+
 void CReceiverView::OnStartReceivingButtonClicked()
 {
     DEBUG_ASSERT(m_ReceiverService);
@@ -112,7 +122,7 @@ void CReceiverView::OnStartReceivingButtonClicked()
     if (isReceiving)
         return;
 
-    const auto getFrequency = [](auto spinbox)
+    const auto getNonZeroValue = [](auto spinbox)
     {
         if (!spinbox)
         {
@@ -123,11 +133,15 @@ void CReceiverView::OnStartReceivingButtonClicked()
         return std::max(1, spinbox->value());
     };
 
-    const auto samplesFrequency = getFrequency(m_SamplesFrequencySpinBox);
-    const auto sendFrequency = getFrequency(m_SendFrequencySpinBox);
-    const auto binarySamplingFrequency = getFrequency(m_BinarySamplingFrequencySpinBox);
+    const auto samplesFrequency = getNonZeroValue(m_SamplesFrequencySpinBox);
+    const auto sendFrequency = getNonZeroValue(m_SendFrequencySpinBox);
+    const auto binarySamplingFrequency = getNonZeroValue(m_BinarySamplingFrequencySpinBox);
+    const auto dotDurationInMiliseconds = getNonZeroValue(m_DotDurationInMilisecondsSpinBox);
 
     const auto treshold = static_cast<unsigned short int>(m_TresholdSpinBox ? m_TresholdSpinBox->value() : 0);
+
+    if (m_OutputTextEdit)
+        m_OutputTextEdit->clear();
 
     DEBUG_ASSERT(!m_AnalogSeriesBuffer);
     if (m_AnalogChartSeries)
@@ -137,7 +151,17 @@ void CReceiverView::OnStartReceivingButtonClicked()
     if(m_BinaryChartSeries)
         m_BinarySeriesBuffer = std::make_unique<CChartSamplesBuffer<byte>>(m_BinaryChartSeries, samplesFrequency);
 
-    const auto result = m_ReceiverService->StartReceiving(samplesFrequency, sendFrequency, treshold, binarySamplingFrequency,
+    const auto result = m_ReceiverService->StartReceiving(samplesFrequency, sendFrequency, treshold, binarySamplingFrequency, dotDurationInMiliseconds,
+    [this](auto character)
+    {
+        if (!character)
+        {
+            QMessageBox::information(this, tr("Error"), tr("Receiving ended!"));
+            RefreshView();
+        }
+        else
+            AddCharacterToOutput(*character);
+    },
     [this](auto&& states)
     {
         AddBinarySamplesToChart(std::move(states));

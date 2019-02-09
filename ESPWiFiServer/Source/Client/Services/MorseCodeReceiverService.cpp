@@ -3,7 +3,7 @@
 #include <sstream>
 #include <fstream>
 
-const double CMorseCodeReceiverService::s_UncertaintyFactor = 0.15;
+const double CMorseCodeReceiverService::s_UncertaintyFactor = 0.5;
 
 bool CMorseCodeReceiverService::Initialize()
 {
@@ -13,26 +13,27 @@ bool CMorseCodeReceiverService::Initialize()
     return LoadDictionary("Data/Services/MorseCodeDictionary.txt");
 }
 
-bool CMorseCodeReceiverService::StartReceiving(unsigned short int samplesFrequency, int binaryTreshold, unsigned short int dotDurationInMiliseconds, ReceiveCallback&& callback)
+bool CMorseCodeReceiverService::StartReceiving(unsigned short int samplesFrequency, unsigned short int sendFrequency, SampleType binaryTreshold, unsigned short int binarySamplingFrequency, unsigned short int dotDurationInMiliseconds, ReceiveCallback&& morseCallback, CSamplesToBinaryReceiverService::ReceiveCallback&& binaryCallback, CSamplesReceiverService::ReceiveCallback&& samplesCallback)
 {
-    if (m_ReceiveCallback || !callback)
+    if (m_ReceiveCallback || !morseCallback)
     {
         DEBUG_ASSERT(false);
         return false;
     }
 
-    DEBUG_ASSERT(false);/*
-    const auto result = CSamplesToBinaryReceiverService::StartReceiving(samplesFrequency, binaryTreshold, [this](auto state, auto stateDuration)
+    const auto result = CSamplesToBinaryReceiverService::StartReceiving(samplesFrequency, sendFrequency, binaryTreshold, binarySamplingFrequency, [this, binaryCallback = std::move(binaryCallback)](auto&& states)
     {
-        if (state)
-            OnReceivedState(*state, stateDuration);
-    });
+        OnReceivedStates(states);
 
-    if (!result)*/
+        if (binaryCallback)
+            binaryCallback(std::move(states));
+    }, std::move(samplesCallback));
+
+    if (!result)
         return false;
 
     m_DotDurationInMiliseconds = dotDurationInMiliseconds;
-    m_ReceiveCallback = std::move(callback);
+    m_ReceiveCallback = std::move(morseCallback);
     m_ErrorInCharacterTransmission = false;
     m_CurrentLetter.clear();
 
@@ -45,11 +46,11 @@ bool CMorseCodeReceiverService::EndReceiving()
     if (!m_ReceiveCallback)
         return false;
 
-    if (!CSamplesReceiverService::EndReceiving())
+    if (!CSamplesToBinaryReceiverService::EndReceiving())
         return false;
 
     m_ReceiveCallback(std::nullopt);
-    m_ReceiveCallback = ReceiveCallback();
+    m_ReceiveCallback = ReceiveCallback{};
     return true;
 }
 
@@ -116,34 +117,37 @@ bool CMorseCodeReceiverService::LoadDictionary(const std::string& filename)
     return true;
 }
 
-void CMorseCodeReceiverService::OnReceivedState(bool state, unsigned short int stateDuration)
+void CMorseCodeReceiverService::OnReceivedStates(const std::vector<StateType>& states)
 {
     DEBUG_ASSERT(m_ReceiveCallback);
     if (!m_ReceiveCallback)
         return;
 
-    const auto morseCodeState = DecodeMorseCodeState(state, stateDuration);
-    if (!morseCodeState)
-        m_ErrorInCharacterTransmission = true;
-    else if (*morseCodeState == EMorseCodeState::CharacterSpace)
+    for (const auto& state : states)
     {
-        CScopedGuard guard{ [this]()
+        const auto morseCodeState = DecodeMorseCodeState(state.first, state.second * 1000);
+        if (!morseCodeState)
+            m_ErrorInCharacterTransmission = true;
+        else if (*morseCodeState == EMorseCodeState::CharacterSpace)
         {
-            m_ErrorInCharacterTransmission = false;
-            m_CurrentLetter.clear();
-        } };
+            CScopedGuard guard{ [this]()
+            {
+                m_ErrorInCharacterTransmission = false;
+                m_CurrentLetter.clear();
+            } };
 
-        if (!m_ErrorInCharacterTransmission)
-        {
-            const auto iterator = m_MorseDictionary.find(m_CurrentLetter);
-            if (iterator == m_MorseDictionary.cend())
-                return;
+            if (!m_ErrorInCharacterTransmission)
+            {
+                const auto iterator = m_MorseDictionary.find(m_CurrentLetter);
+                if (iterator == m_MorseDictionary.cend())
+                    return;
 
-            m_ReceiveCallback(iterator->second);
+                m_ReceiveCallback(iterator->second);
+            }
         }
+        else if (*morseCodeState == EMorseCodeState::Dot || *morseCodeState == EMorseCodeState::Dash)
+            m_CurrentLetter.emplace_back(*morseCodeState);
     }
-    else if (*morseCodeState == EMorseCodeState::Dot || *morseCodeState == EMorseCodeState::Dash)
-        m_CurrentLetter.emplace_back(*morseCodeState);
 }
 
 std::optional<EMorseCodeState> CMorseCodeReceiverService::DecodeMorseCodeState(bool state, unsigned short int stateDuration)

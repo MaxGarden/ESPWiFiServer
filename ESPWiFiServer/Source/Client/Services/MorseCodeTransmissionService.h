@@ -46,7 +46,7 @@ private:
     std::string m_TextToTransmission;
 
     std::unordered_map<char, const MorseLetter> m_MorseDictionary;
-    unsigned int m_DotDurationInMiliSeconds = 100u;
+    unsigned int m_DotDurationInMiliSeconds = 50u;
 
     TransmissionFinishedCallback m_Callback;
 

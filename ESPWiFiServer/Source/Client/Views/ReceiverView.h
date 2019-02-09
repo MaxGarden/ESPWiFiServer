@@ -31,13 +31,14 @@ private:
     void RefreshView();
     void AddAnalogSamplesToChart(std::vector<CMorseCodeReceiverService::SampleType>&& sample);
     void AddBinarySamplesToChart(std::vector<CMorseCodeReceiverService::StateType>&& states);
+    void AddCharacterToOutput(char character);
 
 private slots:
     void OnStartReceivingButtonClicked();
     void OnStopReceivingButtonClicked();
 
 private:
-    CSamplesToBinaryReceiverService * m_ReceiverService = nullptr;
+    CMorseCodeReceiverService* m_ReceiverService = nullptr;
 
     QLineSeries* m_AnalogChartSeries = nullptr;
     std::unique_ptr<QChart> m_AnalogSamplesChart;

@@ -7,7 +7,7 @@ bool CReceiverBuilder::Build(IClientController& controller)
 {
     auto result = true;
 
-    result &= controller.RegisterServiceFactory(std::make_unique<CClientServiceFactory<CSamplesToBinaryReceiverService>>("samples"));
+    result &= controller.RegisterServiceFactory(std::make_unique<CClientServiceFactory<CMorseCodeReceiverService>>("samples"));
 
     return result;
 }
