@@ -40,6 +40,36 @@ void CChartSamplesBuffer<SampleType>::Write(const std::vector<SampleType>& sampl
 }
 
 template<typename SampleType>
+void CChartSamplesBuffer<SampleType>::Write(SampleType sample, size_t count)
+{
+    DEBUG_ASSERT(m_Series);
+    if (!m_Series)
+        return;
+
+    if (m_Buffer.isEmpty())
+    {
+        m_Buffer.reserve(m_SamplesCount);
+        for (auto i = 0u; i < m_SamplesCount; ++i)
+            m_Buffer.append(QPointF(i, 0));
+    }
+
+    const auto availableSamples = count;
+    auto start = 0u;
+    if (availableSamples < m_SamplesCount)
+    {
+        start = m_SamplesCount - availableSamples;
+        for (auto i = 0u; i < start; ++i)
+            m_Buffer[i].setY(m_Buffer.at(i + availableSamples).y());
+    }
+
+    for (auto i = start; i < m_SamplesCount; ++i)
+        m_Buffer[i].setY(sample);
+
+    m_Series->replace(m_Buffer);
+}
+
+
+template<typename SampleType>
 std::optional<QPointF> CChartSamplesBuffer<SampleType>::GetMinimum() const noexcept
 {
     const auto iterator = std::min_element(m_Buffer.cbegin(), m_Buffer.cend(), [](const auto& first, const auto& second)
@@ -59,4 +89,10 @@ std::optional<QPointF> CChartSamplesBuffer<SampleType>::GetMaximum() const noexc
     });
 
     return iterator == m_Buffer.cend() ? std::nullopt : std::optional<QPointF>{ *iterator };
+}
+
+template<typename SampleType>
+size_t CChartSamplesBuffer<SampleType>::GetSamplesCount() const noexcept
+{
+    return m_SamplesCount;
 }

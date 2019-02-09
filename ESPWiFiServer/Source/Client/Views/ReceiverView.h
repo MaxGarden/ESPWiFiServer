@@ -29,18 +29,19 @@ private:
     void SetupCharts();
     void SetupChart(QLineSeries*& series, std::unique_ptr<QChart>& chart, const QString& title);
     void RefreshView();
-    void AddSamplesToChart(std::vector<int>&& sample);
+    void AddAnalogSamplesToChart(std::vector<CMorseCodeReceiverService::SampleType>&& sample);
+    void AddBinarySamplesToChart(std::vector<CMorseCodeReceiverService::StateType>&& states);
 
 private slots:
     void OnStartReceivingButtonClicked();
     void OnStopReceivingButtonClicked();
 
 private:
-    CSamplesReceiverService* m_ReceiverService = nullptr;
+    CSamplesToBinaryReceiverService * m_ReceiverService = nullptr;
 
     QLineSeries* m_AnalogChartSeries = nullptr;
     std::unique_ptr<QChart> m_AnalogSamplesChart;
-    std::unique_ptr<CChartSamplesBuffer<int>> m_AnalogSeriesBuffer;
+    std::unique_ptr<CChartSamplesBuffer<CMorseCodeReceiverService::SampleType>> m_AnalogSeriesBuffer;
 
     QLineSeries* m_BinaryChartSeries = nullptr;
     std::unique_ptr<QChart> m_BinarySamplesChart;

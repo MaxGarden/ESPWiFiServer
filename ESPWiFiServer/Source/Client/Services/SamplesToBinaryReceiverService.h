@@ -7,22 +7,27 @@
 class CSamplesToBinaryReceiverService : public CSamplesReceiverService
 {
 public:
-    using ReceiveCallback = std::function<void(std::optional<bool>, unsigned short int)>;
+    using StateType = std::pair<bool, double>;
+    using ReceiveCallback = std::function<void(std::vector<StateType>&&)>;
 
 public:
     CSamplesToBinaryReceiverService() = default;
     virtual ~CSamplesToBinaryReceiverService() override = default;
 
-    bool StartReceiving(unsigned short int samplesFrequency, int binaryTreshold, ReceiveCallback&& callback);
+    bool StartReceiving(unsigned short int samplesFrequency, unsigned short int sendFrequency, SampleType binaryTreshold, unsigned short int binarySamplingFrequency, ReceiveCallback&& binaryCallback, CSamplesReceiverService::ReceiveCallback&& samplesCallback = CSamplesReceiverService::ReceiveCallback{});
     virtual bool EndReceiving() override;
 
 private:
-    void OnReceivedSample(int sample);
+    void OnReceivedSamples(const std::vector<SampleType>& samples);
 
 private:
     ReceiveCallback m_ReceiveCallback;
     int m_BinaryTreshold;
     double m_SampleDuration;
+    double m_BinarySamplingDuration;
+
+    SampleType m_MaximumSampleValue;
+    double m_CurrentBinarySamplingDuration;
 
     std::optional<bool> m_CurrentState;
     double m_CurrentStateDuration;

@@ -21,13 +21,14 @@ bool CMorseCodeReceiverService::StartReceiving(unsigned short int samplesFrequen
         return false;
     }
 
+    DEBUG_ASSERT(false);/*
     const auto result = CSamplesToBinaryReceiverService::StartReceiving(samplesFrequency, binaryTreshold, [this](auto state, auto stateDuration)
     {
         if (state)
             OnReceivedState(*state, stateDuration);
     });
 
-    if (!result)
+    if (!result)*/
         return false;
 
     m_DotDurationInMiliseconds = dotDurationInMiliseconds;

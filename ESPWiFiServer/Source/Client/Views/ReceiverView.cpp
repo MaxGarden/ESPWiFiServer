@@ -17,7 +17,7 @@ const std::string& CReceiverView::GetName() const noexcept
 
 void CReceiverView::OnServicePaired(IClientService& service)
 {
-    if (const auto receiverService = dynamic_cast<CSamplesReceiverService*>(&service))
+    if (const auto receiverService = dynamic_cast<CSamplesToBinaryReceiverService*>(&service))
     {
         DEBUG_ASSERT(!m_ReceiverService);
         m_ReceiverService = receiverService;
@@ -77,12 +77,12 @@ void CReceiverView::RefreshView()
         m_StopReceivingPushButton->setEnabled(isReceiving.value_or(false));
 }
 
-void CReceiverView::AddSamplesToChart(std::vector<int>&& sample)
+void CReceiverView::AddAnalogSamplesToChart(std::vector<int>&& samples)
 {
-    if (!m_AnalogSeriesBuffer || sample.empty())
+    if (!m_AnalogSeriesBuffer || samples.empty())
         return;
 
-    m_AnalogSeriesBuffer->Write(sample);
+    m_AnalogSeriesBuffer->Write(samples);
 
     if (const auto axis = m_AnalogSamplesChart->axisY())
     {
@@ -90,6 +90,15 @@ void CReceiverView::AddSamplesToChart(std::vector<int>&& sample)
         const auto maximum = m_AnalogSeriesBuffer->GetMaximum().value_or(QPointF{}).y();
         axis->setRange(minimum, maximum);
     }
+}
+
+void CReceiverView::AddBinarySamplesToChart(std::vector<CMorseCodeReceiverService::StateType>&& states)
+{
+    if (!m_BinarySeriesBuffer || states.empty())
+        return;
+
+    for (const auto& state : states)
+        m_BinarySeriesBuffer->Write(state.first ? 1 : 0, state.second * m_BinarySeriesBuffer->GetSamplesCount());
 }
 
 void CReceiverView::OnStartReceivingButtonClicked()
@@ -116,14 +125,26 @@ void CReceiverView::OnStartReceivingButtonClicked()
 
     const auto samplesFrequency = getFrequency(m_SamplesFrequencySpinBox);
     const auto sendFrequency = getFrequency(m_SendFrequencySpinBox);
+    const auto binarySamplingFrequency = getFrequency(m_BinarySamplingFrequencySpinBox);
+
+    const auto treshold = static_cast<unsigned short int>(m_TresholdSpinBox ? m_TresholdSpinBox->value() : 0);
 
     DEBUG_ASSERT(!m_AnalogSeriesBuffer);
     if (m_AnalogChartSeries)
-        m_AnalogSeriesBuffer = std::make_unique<CChartSamplesBuffer<int>>(m_AnalogChartSeries, samplesFrequency);
+        m_AnalogSeriesBuffer = std::make_unique<CChartSamplesBuffer<CMorseCodeReceiverService::SampleType>>(m_AnalogChartSeries, samplesFrequency);
 
-    const auto result = m_ReceiverService->StartReceiving(samplesFrequency, sendFrequency, [this](auto&& samples)
+    DEBUG_ASSERT(m_BinaryChartSeries);
+    if(m_BinaryChartSeries)
+        m_BinarySeriesBuffer = std::make_unique<CChartSamplesBuffer<byte>>(m_BinaryChartSeries, samplesFrequency);
+
+    const auto result = m_ReceiverService->StartReceiving(samplesFrequency, sendFrequency, treshold, binarySamplingFrequency,
+    [this](auto&& states)
     {
-        AddSamplesToChart(std::move(samples));
+        AddBinarySamplesToChart(std::move(states));
+    },
+    [this](auto&& samples)
+    {
+        AddAnalogSamplesToChart(std::move(samples));
     });
 
     DEBUG_ASSERT(result);
@@ -132,10 +153,14 @@ void CReceiverView::OnStartReceivingButtonClicked()
         QMessageBox::critical(this, tr("Error"), tr("Cannot start receiving!"));
 
         m_AnalogSeriesBuffer.reset();
+        m_BinarySeriesBuffer.reset();
     }
     else
     {
         if (const auto axis = m_AnalogSamplesChart->axisX())
+            axis->setRange(0, samplesFrequency);
+
+        if (const auto axis = m_BinarySamplesChart->axisX())
             axis->setRange(0, samplesFrequency);
     }
 
@@ -158,7 +183,10 @@ void CReceiverView::OnStopReceivingButtonClicked()
     if (!result)
         QMessageBox::critical(this, tr("Error"), tr("Cannot end receiving!"));
     else
+    {
         m_AnalogSeriesBuffer.reset();
+        m_BinarySeriesBuffer.reset();
+    }
 
     RefreshView();
 }

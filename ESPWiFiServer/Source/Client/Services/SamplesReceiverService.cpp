@@ -52,11 +52,11 @@ void CSamplesReceiverService::OnReceived(const std::vector<byte>& payload)
         return;
 
     const auto payloadSize = payload.size();
-    DEBUG_ASSERT(payloadSize % sizeof(int) == 0);
-    if (payloadSize % sizeof(int) != 0)
+    DEBUG_ASSERT(payloadSize % sizeof(SampleType) == 0);
+    if (payloadSize % sizeof(SampleType) != 0)
         return;
 
-    std::vector<int> samples(payloadSize / sizeof(int));
+    std::vector<SampleType> samples(payloadSize / sizeof(SampleType));
     memcpy(&samples[0], payload.data(), payloadSize);
     m_ReceiveCallback(std::move(samples));
 }

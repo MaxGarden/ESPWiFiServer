@@ -14,9 +14,12 @@ public:
     ~CChartSamplesBuffer() = default;
 
     void Write(const std::vector<SampleType>& samples);
+    void Write(SampleType sample, size_t count);
 
     std::optional<QPointF> GetMinimum() const noexcept;
     std::optional<QPointF> GetMaximum() const noexcept;
+
+    size_t GetSamplesCount() const noexcept;
 
 private:
     QXYSeries* m_Series;

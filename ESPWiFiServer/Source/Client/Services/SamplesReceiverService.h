@@ -7,7 +7,8 @@
 class CSamplesReceiverService : public CClientServiceBase
 {
 public:
-    using ReceiveCallback = std::function<void(std::vector<int>&&)>;
+    using SampleType = int;
+    using ReceiveCallback = std::function<void(std::vector<SampleType>&&)>;
 
 public:
     CSamplesReceiverService() = default;
