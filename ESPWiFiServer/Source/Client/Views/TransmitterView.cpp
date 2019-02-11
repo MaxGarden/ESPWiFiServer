@@ -53,6 +53,12 @@ void CTransmitterView::OnTransmitButtonClicked()
         return std::string{};
     }();
 
+    if (textToTransmit.empty())
+    {
+        QMessageBox::critical(this, tr("Error"), tr("Cannot transmit empty text!"));
+        return;
+    }
+
     if (textToTransmit.size() > 1000) //TODO fix this
     {
         QMessageBox::critical(this, tr("Error"), tr("Maximum text length is 1000"));
