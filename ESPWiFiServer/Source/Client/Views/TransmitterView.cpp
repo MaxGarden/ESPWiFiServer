@@ -129,15 +129,15 @@ void CTransmitterView::OnAbortButtonClicked()
 
 void CTransmitterView::OnDotDurationChanged(int durationInMiliseconds)
 {
-    DEBUG_ASSERT(durationInMiliseconds > 0);
-    if (durationInMiliseconds <= 0)
-        return;
-
     DEBUG_ASSERT(m_TransmissionService);
     if (!m_TransmissionService)
         return RefreshView();
 
-    m_TransmissionService->SetDotDuration(durationInMiliseconds);
+    if (!m_TransmissionService->SetDotDuration(durationInMiliseconds))
+    {
+        QMessageBox::critical(this, tr("Error"), tr("Invalid dot duration value!"));
+        return RefreshView();
+    }
 }
 
 void CTransmitterView::RefreshView()

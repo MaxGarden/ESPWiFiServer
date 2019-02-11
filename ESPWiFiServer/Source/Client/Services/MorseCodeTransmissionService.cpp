@@ -51,9 +51,13 @@ bool CMorseCodeTransmissionService::TransmitText(std::string&& text, Transmissio
     return true;
 }
 
-void CMorseCodeTransmissionService::SetDotDuration(unsigned int durationInMiliseconds) noexcept
+bool CMorseCodeTransmissionService::SetDotDuration(unsigned int durationInMiliseconds) noexcept
 {
+    if (durationInMiliseconds <= 0)
+        return false;
+
     m_DotDurationInMiliSeconds = durationInMiliseconds;
+    return true;
 }
 
 unsigned int CMorseCodeTransmissionService::GetDotDuration() const noexcept
