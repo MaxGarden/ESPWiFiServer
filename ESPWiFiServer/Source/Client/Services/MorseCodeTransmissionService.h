@@ -30,7 +30,7 @@ public:
 
     bool TransmitText(std::string&& text, TransmissionFinishedCallback&& callback);
 
-    void SetDotDuration(unsigned int durationInMiliseconds) noexcept;
+    bool SetDotDuration(unsigned int durationInMiliseconds) noexcept;
     unsigned int GetDotDuration() const noexcept;
 
 protected:

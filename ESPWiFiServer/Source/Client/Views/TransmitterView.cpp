@@ -54,6 +54,12 @@ void CTransmitterView::OnTransmitButtonClicked()
         return std::string{};
     }();
 
+    if (textToTransmit.empty())
+    {
+        QMessageBox::critical(this, tr("Error"), tr("Cannot transmit empty text!"));
+        return;
+    }
+
     if (textToTransmit.size() > 1000) //TODO fix this
     {
         QMessageBox::critical(this, tr("Error"), tr("Maximum text length is 1000"));
@@ -124,15 +130,15 @@ void CTransmitterView::OnAbortButtonClicked()
 
 void CTransmitterView::OnDotDurationChanged(int durationInMiliseconds)
 {
-    DEBUG_ASSERT(durationInMiliseconds > 0);
-    if (durationInMiliseconds <= 0)
-        return;
-
     DEBUG_ASSERT(m_TransmissionService);
     if (!m_TransmissionService)
         return RefreshView();
 
-    m_TransmissionService->SetDotDuration(durationInMiliseconds);
+    if (!m_TransmissionService->SetDotDuration(durationInMiliseconds))
+    {
+        QMessageBox::critical(this, tr("Error"), tr("Invalid dot duration value!"));
+        return RefreshView();
+    }
 }
 
 void CTransmitterView::OnTransmissionMediumChanged(int index)
