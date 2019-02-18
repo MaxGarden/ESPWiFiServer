@@ -57,6 +57,16 @@
           </property>
          </widget>
         </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>Transmission medium:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QComboBox" name="m_TransmissionMediumComboBox"/>
+        </item>
        </layout>
       </item>
       <item>
@@ -131,10 +141,27 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>m_TransmissionMediumComboBox</sender>
+   <signal>currentIndexChanged(int)</signal>
+   <receiver>TransmitterView</receiver>
+   <slot>OnTransmissionMediumChanged(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>268</x>
+     <y>211</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>199</x>
+     <y>149</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
  <slots>
   <slot>OnTransmitButtonClicked()</slot>
   <slot>OnDotDurationChanged(int)</slot>
   <slot>OnAbortButtonClicked()</slot>
+  <slot>OnTransmissionMediumChanged(int)</slot>
  </slots>
 </ui>

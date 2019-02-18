@@ -3,6 +3,7 @@
 #pragma once
 
 #include "ClientServiceBase.h"
+#include "BinaryTransmissionService.h"
 
 class CSamplesReceiverService : public CClientServiceBase
 {
@@ -21,10 +22,15 @@ public:
 
     bool IsReceiving() const noexcept;
 
+    void SetTransmissionMedium(TransmissionMedium medium);
+    TransmissionMedium GetTransmissionMedium() const noexcept;
+
     virtual void OnReceived(const std::vector<byte>& payload) override final;
 
 private:
     ReceiveCallback m_ReceiveCallback;
+
+    TransmissionMedium m_TransmissionMedium = TransmissionMedium::Sound;
 
     static const byte s_StartTransmissionCommand = 's';
     static const byte s_EndTransmissionCommand = 'e';

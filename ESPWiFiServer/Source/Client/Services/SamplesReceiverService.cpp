@@ -16,7 +16,8 @@ bool CSamplesReceiverService::StartReceiving(unsigned short int samplesFrequency
     }
 
     const auto sendResult = Send({ s_StartTransmissionCommand, static_cast<byte>(samplesFrequency), static_cast<byte>(samplesFrequency >> 8),
-                                                               static_cast<byte>(sendFrequency), static_cast<byte>(sendFrequency >> 8) });
+                                                               static_cast<byte>(sendFrequency), static_cast<byte>(sendFrequency >> 8),
+                                                               static_cast<byte>(m_TransmissionMedium)});
     DEBUG_ASSERT(sendResult);
     if (!sendResult)
         return false;
@@ -44,6 +45,16 @@ bool CSamplesReceiverService::EndReceiving()
 bool CSamplesReceiverService::IsReceiving() const noexcept
 {
     return !!m_ReceiveCallback;
+}
+
+void CSamplesReceiverService::SetTransmissionMedium(TransmissionMedium medium)
+{
+    m_TransmissionMedium = medium;
+}
+
+TransmissionMedium CSamplesReceiverService::GetTransmissionMedium() const noexcept
+{
+    return m_TransmissionMedium;
 }
 
 void CSamplesReceiverService::OnReceived(const std::vector<byte>& payload)

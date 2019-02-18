@@ -21,6 +21,7 @@ void CTransmitterView::OnServicePaired(IClientService& service)
     {
         DEBUG_ASSERT(!m_TransmissionService);
         m_TransmissionService = transmissionService;
+        SetupTransmissionMediumComboBox();
     }
 
     RefreshView();
@@ -134,6 +135,18 @@ void CTransmitterView::OnDotDurationChanged(int durationInMiliseconds)
     m_TransmissionService->SetDotDuration(durationInMiliseconds);
 }
 
+void CTransmitterView::OnTransmissionMediumChanged(int index)
+{
+    DEBUG_ASSERT(m_TransmissionService);
+    if (!m_TransmissionService)
+        return RefreshView();
+
+    const auto result = m_TransmissionService->SetTransmissionMedium(static_cast<TransmissionMedium>(index));
+    DEBUG_ASSERT(result);
+    if (!result && m_TransmissionMediumComboBox)
+        m_TransmissionMediumComboBox->setCurrentIndex(static_cast<int>(m_TransmissionService->GetTransmissionMedium()));
+}
+
 void CTransmitterView::RefreshView()
 {
     if (m_TransmissionGroupBox)
@@ -141,4 +154,13 @@ void CTransmitterView::RefreshView()
 
     if (m_DotDurationSpinBox && m_TransmissionService)
         m_DotDurationSpinBox->setValue(m_TransmissionService->GetDotDuration());
+}
+
+void CTransmitterView::SetupTransmissionMediumComboBox()
+{
+    if (!m_TransmissionMediumComboBox)
+        return;
+
+    m_TransmissionMediumComboBox->clear();
+    m_TransmissionMediumComboBox->addItems({ tr("Sound"), tr("Infrared") });
 }

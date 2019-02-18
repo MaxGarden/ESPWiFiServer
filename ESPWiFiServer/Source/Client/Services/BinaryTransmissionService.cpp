@@ -61,6 +61,25 @@ bool CBinaryTransmissionService::IsTransmitting() const noexcept
     return m_IsWaitingForResponse;
 }
 
+bool CBinaryTransmissionService::SetTransmissionMedium(TransmissionMedium medium)
+{
+    if (m_TransmissionMedium == medium)
+        return true;
+
+    if (TransmitCommand(s_TransmissionMediumCommand, static_cast<unsigned short int>(medium)))
+    {
+        m_TransmissionMedium = medium;
+        return true;
+    }
+
+    return false;
+}
+
+TransmissionMedium CBinaryTransmissionService::GetTransmissionMedium() const noexcept
+{
+    return m_TransmissionMedium;
+}
+
 void CBinaryTransmissionService::OnReceived(const std::vector<byte>& payload)
 {
     DEBUG_ASSERT(!payload.empty());
@@ -73,14 +92,12 @@ void CBinaryTransmissionService::OnReceived(const std::vector<byte>& payload)
 
     const auto command = payload.front();
     const auto isFinishedSuccessful = command == s_FinishedTransmittingCommand;
-    const auto isValidCommand = isFinishedSuccessful || command == s_ClearQueueCommand;
-
-    DEBUG_ASSERT(isValidCommand);
-    if (!isValidCommand)
-        return;
+    const auto isTransmissionEnded = isFinishedSuccessful || command == s_ClearQueueCommand;
 
     m_IsWaitingForResponse = false;
-    OnTransmissionEnded(isFinishedSuccessful);
+
+    if(isTransmissionEnded)
+        OnTransmissionEnded(isFinishedSuccessful);
 }
 
 void CBinaryTransmissionService::OnTransmissionEnded(bool)
@@ -90,7 +107,7 @@ void CBinaryTransmissionService::OnTransmissionEnded(bool)
 
 bool CBinaryTransmissionService::TransmitCommand(byte type, unsigned short int argument)
 {
-    const std::array<byte, 3> dataToSend = { type, static_cast<byte>(argument), static_cast<byte>(argument >> 8) };
+    const std::array<byte, 4> dataToSend = { type, static_cast<byte>(argument), static_cast<byte>(argument >> 8)};
 
     if (m_IsTransactionBegun)
     {

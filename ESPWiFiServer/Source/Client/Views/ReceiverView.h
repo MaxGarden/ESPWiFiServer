@@ -17,7 +17,7 @@ class CReceiverView : public CClientViewBase, public Ui::ReceiverView
 
 public:
     CReceiverView(QWidget* parent = nullptr);
-    virtual ~CReceiverView() override final = default;
+    virtual ~CReceiverView() override final;
 
     const std::string& GetName() const noexcept override final;
 
@@ -32,10 +32,12 @@ private:
     void AddAnalogSamplesToChart(std::vector<CMorseCodeReceiverService::SampleType>&& sample);
     void AddBinarySamplesToChart(std::vector<CMorseCodeReceiverService::StateType>&& states);
     void AddCharacterToOutput(char character);
+    void SetupTransmissionMediumComboBox();
 
 private slots:
     void OnStartReceivingButtonClicked();
     void OnStopReceivingButtonClicked();
+    void OnTransmissionMediumChanged(int index);
 
 private:
     CMorseCodeReceiverService* m_ReceiverService = nullptr;

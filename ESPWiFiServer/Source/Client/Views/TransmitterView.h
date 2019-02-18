@@ -24,9 +24,11 @@ private slots:
     void OnTransmitButtonClicked();
     void OnAbortButtonClicked();
     void OnDotDurationChanged(int durationInMiliseconds);
+    void OnTransmissionMediumChanged(int index);
 
 private:
     void RefreshView();
+    void SetupTransmissionMediumComboBox();
 
 private:
     CMorseCodeTransmissionService* m_TransmissionService = nullptr;

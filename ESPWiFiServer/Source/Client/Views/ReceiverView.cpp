@@ -9,6 +9,15 @@ CReceiverView::CReceiverView(QWidget* parent /*= nullptr*/) :
     SetupCharts();
 }
 
+CReceiverView::~CReceiverView()
+{
+    if (m_ReceiverService && m_ReceiverService->IsReceiving())
+    {
+        const auto result = m_ReceiverService->EndReceiving();
+        DEBUG_ASSERT(result);
+    }
+}
+
 const std::string& CReceiverView::GetName() const noexcept
 {
     static const std::string name = "Receiver";
@@ -21,6 +30,7 @@ void CReceiverView::OnServicePaired(IClientService& service)
     {
         DEBUG_ASSERT(!m_ReceiverService);
         m_ReceiverService = receiverService;
+        SetupTransmissionMediumComboBox();
     }
 
     RefreshView();
@@ -88,7 +98,7 @@ void CReceiverView::AddAnalogSamplesToChart(std::vector<int>&& samples)
     {
         const auto minimum = m_AnalogSeriesBuffer->GetMinimum().value_or(QPointF{}).y();
         const auto maximum = m_AnalogSeriesBuffer->GetMaximum().value_or(QPointF{}).y();
-        axis->setRange(minimum, maximum);
+        axis->setRange(minimum, maximum + (minimum == maximum ? 1 : 0));
     }
 }
 
@@ -109,6 +119,15 @@ void CReceiverView::AddCharacterToOutput(char character)
     m_OutputTextEdit->moveCursor(QTextCursor::End);
     m_OutputTextEdit->insertPlainText(QString{ character });
     m_OutputTextEdit->moveCursor(QTextCursor::End);
+}
+
+void CReceiverView::SetupTransmissionMediumComboBox()
+{
+    if (!m_TransmissionMediumComboBox)
+        return;
+
+    m_TransmissionMediumComboBox->clear();
+    m_TransmissionMediumComboBox->addItems({ tr("Sound"), tr("Infrared") });
 }
 
 void CReceiverView::OnStartReceivingButtonClicked()
@@ -156,7 +175,7 @@ void CReceiverView::OnStartReceivingButtonClicked()
     {
         if (!character)
         {
-            QMessageBox::information(this, tr("Error"), tr("Receiving ended!"));
+            QMessageBox::information(this, tr("Information"), tr("Receiving ended!"));
             RefreshView();
         }
         else
@@ -174,7 +193,7 @@ void CReceiverView::OnStartReceivingButtonClicked()
     DEBUG_ASSERT(result);
     if (!result)
     {
-        QMessageBox::critical(this, tr("Error"), tr("Cannot start receiving!"));
+        QMessageBox::critical(this, tr("Information"), tr("Cannot start receiving!"));
 
         m_AnalogSeriesBuffer.reset();
         m_BinarySeriesBuffer.reset();
@@ -213,4 +232,13 @@ void CReceiverView::OnStopReceivingButtonClicked()
     }
 
     RefreshView();
+}
+
+void CReceiverView::OnTransmissionMediumChanged(int index)
+{
+    DEBUG_ASSERT(m_ReceiverService);
+    if (!m_ReceiverService)
+        return RefreshView();
+
+    m_ReceiverService->SetTransmissionMedium(static_cast<TransmissionMedium>(index));
 }
