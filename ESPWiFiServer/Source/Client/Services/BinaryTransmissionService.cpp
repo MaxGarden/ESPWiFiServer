@@ -107,7 +107,7 @@ void CBinaryTransmissionService::OnTransmissionEnded(bool)
 
 bool CBinaryTransmissionService::TransmitCommand(byte type, unsigned short int argument)
 {
-    const std::array<byte, 4> dataToSend = { type, static_cast<byte>(argument), static_cast<byte>(argument >> 8)};
+    const std::array<byte, 3> dataToSend = { type, static_cast<byte>(argument), static_cast<byte>(argument >> 8)};
 
     if (m_IsTransactionBegun)
     {
