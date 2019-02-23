@@ -99,7 +99,11 @@ void CServerViewImplementation::OnClientDisconnected(const IClientControllerShar
         DEBUG_ASSERT(viewWidget);
 
         if (viewWidget)
-            m_ClientsViewTabWidget->removeTab(m_ClientsViewTabWidget->indexOf(viewWidget));
+        {
+            const auto index = m_ClientsViewTabWidget->indexOf(viewWidget);
+            m_ClientsViewTabWidget->removeTab(index);
+            viewWidget->deleteLater();
+        }
     }
 
     m_Clients.erase(iterator);

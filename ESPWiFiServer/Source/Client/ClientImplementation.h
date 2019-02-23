@@ -36,6 +36,8 @@ private slots:
     void OnConnected();
     void OnDisconnected();
 
+    void OnError(QAbstractSocket::SocketError socketError);
+
 private:
     PacketSizeType m_QueuedPacketSize = 0u;
     QTcpSocket* m_Socket = nullptr;

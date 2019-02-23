@@ -43,6 +43,9 @@ bool CMorseCodeTransmissionService::TransmitText(std::string&& text, Transmissio
         return false;
     }
 
+    if (!callback)
+        return false;
+
     m_Callback = callback;
     m_TextToTransmission = std::move(text);
     m_TextToTransmissionOffset = 0;

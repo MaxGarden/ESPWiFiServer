@@ -3,13 +3,19 @@
 
 bool CClientImplementation::IsConnected() const noexcept
 {
-    return m_Socket && m_Socket->isOpen();
+    if (m_Socket)
+    {
+        auto state = m_Socket->state();
+        state = state;
+    }
+    return m_Socket && m_Socket->isOpen() && m_Socket->state() == QTcpSocket::ConnectedState;
 }
 
 bool CClientImplementation::Send(const Packet& packet)
 {
-    DEBUG_ASSERT(m_Socket && m_Socket->isOpen());
-    if (!m_Socket || !m_Socket->isOpen())
+    const auto isConnected = IsConnected();
+    DEBUG_ASSERT(isConnected);
+    if (!isConnected)
         return false;
 
     const auto packetRawSize = sizeof(byte) + packet.Payload.size();
@@ -41,6 +47,7 @@ bool CClientImplementation::Disconnect()
     if (!m_Socket)
         return false;
 
+    m_Socket->disconnectFromHost();
     m_Socket->close();
     return true;
 }
@@ -68,10 +75,12 @@ void CClientImplementation::Setup(QTcpSocket& socket)
     connect(&socket, SIGNAL(readyRead()), this, SLOT(OnReadReady()));
     connect(&socket, SIGNAL(connected()), this, SLOT(OnConnected()));
     connect(&socket, SIGNAL(disconnected()), this, SLOT(OnDisconnected()));
+    connect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(OnError(error(QAbstractSocket::SocketError))));
 }
 
 void CClientImplementation::CleanUp(QTcpSocket& socket)
 {
+    disconnect(&socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(OnError(error(QAbstractSocket::SocketError))));
     disconnect(&socket, SIGNAL(disconnected()), this, SLOT(OnDisconnected()));
     disconnect(&socket, SIGNAL(connected()), this, SLOT(OnConnected()));
     disconnect(&socket, SIGNAL(readyRead()), this, SLOT(OnReadReady()));
@@ -98,6 +107,11 @@ void CClientImplementation::OnConnected()
 void CClientImplementation::OnDisconnected()
 {
     NotifyListeners(&IClientListener::OnDisconnected);
+}
+
+void CClientImplementation::OnError(QAbstractSocket::SocketError)
+{
+    Disconnect();
 }
 
 void CClientImplementation::TryReadHeader()

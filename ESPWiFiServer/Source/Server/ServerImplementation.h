@@ -16,15 +16,19 @@ public:
     virtual bool StartListening(unsigned short int port) override final;
     virtual void VisitClients(const ConstVisitorType<IClientSharedPtr>& visitor) override final;
 
+    void RefreshClientsStates();
+
 private:
     void Setup();
 
 private slots:
     void OnNewConnection();
+    void OnRefreshTimer();
 
 private:
     QTcpServer m_Server;
     std::vector<IClientSharedPtr> m_Clients;
+    std::vector<IClientSharedPtr> m_ClientsToErase;
 };
 
 #endif //__SERVER_IMPLEMENTATION_H__
