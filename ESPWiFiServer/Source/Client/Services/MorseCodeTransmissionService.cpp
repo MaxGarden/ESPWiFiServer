@@ -93,6 +93,7 @@ void CMorseCodeTransmissionService::OnTransmissionEnded(bool success)
         return transmissionResult(false);
     }
 
+    TransmitMorseCodeState(EMorseCodeState::Dot);
     TransmitMorseCodeState(EMorseCodeState::CharacterSpace);
 
     for (auto length = 0u; m_TextToTransmissionOffset < m_TextToTransmission.size() && length < s_MaxLettersNumberInOneTransmissionChunk; ++m_TextToTransmissionOffset, ++length)
@@ -103,6 +104,8 @@ void CMorseCodeTransmissionService::OnTransmissionEnded(bool success)
             return transmissionResult(false);
         }
     }
+
+    TransmitMorseCodeState(EMorseCodeState::Dot);
 
     if (!EndTransaction())
     {
